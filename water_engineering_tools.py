@@ -171,24 +171,24 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
 
         spring_rolling_sum = spring_data['Flow'].rolling(
             spring_volume_period).sum()
-           if not spring_rolling_sum.empty:
-                spring_volume_start = spring_rolling_sum.idxmax(
-                ) - pd.Timedelta(days=spring_volume_period - 1)
-                spring_volume_end = spring_rolling_sum.idxmax()
-            else:
-                spring_volume_start = None
-                spring_volume_end = None
+        if not spring_rolling_sum.empty:
+            spring_volume_start = spring_rolling_sum.idxmax(
+            ) - pd.Timedelta(days=spring_volume_period - 1)
+            spring_volume_end = spring_rolling_sum.idxmax()
+        else:
+            spring_volume_start = None
+            spring_volume_end = None
         ax.axvspan(spring_volume_start, spring_volume_end,
                    color='r', alpha=0.3, label="Spring Volume Period")
 
         fall_rolling_sum = fall_data['Flow'].rolling(fall_volume_period).sum()
-           if not fall_rolling_sum.empty:
-                fall_volume_start = fall_rolling_sum.idxmax(
-                ) - pd.Timedelta(days=fall_volume_period - 1)
-                fall_volume_end = fall_rolling_sum.idxmax()
-            else:
-                fall_volume_start = None
-                fall_volume_end = None
+        if not fall_rolling_sum.empty:
+            fall_volume_start = fall_rolling_sum.idxmax(
+            ) - pd.Timedelta(days=fall_volume_period - 1)
+            fall_volume_end = fall_rolling_sum.idxmax()
+        else:
+            fall_volume_start = None
+            fall_volume_end = None
         ax.axvspan(fall_volume_start, fall_volume_end, color='g',
                    alpha=0.3, label="Fall Volume Period")
 
