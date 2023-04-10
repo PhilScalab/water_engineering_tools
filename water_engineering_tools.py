@@ -6,6 +6,7 @@ from io import StringIO
 import io
 import base64
 import docx
+import matplotlib.dates as mdates
 from scipy.stats import norm, lognorm, pearson3, gamma, gumbel_r, genextreme
 
 # Functions for Frequency Analysis
