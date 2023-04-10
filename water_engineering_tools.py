@@ -298,6 +298,7 @@ if choice == "Hydrograph Producer":
         # df["Date"] = pd.to_datetime(df["Date"])
         # years = df["Year"].unique()
         st.subheader("Hydrographs")
+        years = daily_flow_data["Year"].unique()
         for year in years:
             df_year = daily_flow_data[daily_flow_data["Year"] == year]
             df_year.set_index("Date", inplace=True)
