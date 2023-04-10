@@ -215,8 +215,8 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         os.unlink(temp_file.name)
 
         # Add data to periods table
-        period_df = period_df.append({"Year": year, "Spring Period": f"{spring_volume_start.strftime('%d-%m')} - {spring_volume_end.strftime('%d-%m')}",
-                                      "Fall Period": f"{fall_volume_start.strftime('%d-%m')} - {fall_volume_end.strftime('%d-%m')}"}, ignore_index=True)
+        period_df = period_df.append({"Year": year, "Spring Period": f"{spring_volume_start.strftime('%d-%m') if spring_volume_start is not None else None} - {spring_volume_end.strftime('%d-%m') if spring_volume_end is not None else None}",
+                                      "Fall Period": f"{fall_volume_start.strftime('%d-%m') if fall_volume_start is not None else None} - {fall_volume_end.strftime('%d-%m') if fall_volume_end is not None else None}"}, ignore_index=True)
 
     # Create remaining sheets in the Excel workbook
     for sheet_name, df in zip(["Max Spring", "Min Spring", "Max Fall", "Min Fall", "Periods"], [max_spring_df, min_spring_df, max_fall_df, min_fall_df, period_df]):
