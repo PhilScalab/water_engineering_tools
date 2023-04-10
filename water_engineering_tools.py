@@ -172,31 +172,31 @@ elif choice == "Hydrograph Producer":
             period_df = period_df.append({"Year": year, "Spring Period": f"{spring_start_date.strftime('%d-%m')} to {spring_end_date.strftime('%d-%m')}",
                                           "Fall Period": f"{fall_start_date.strftime('%d-%m')} to {fall_end_date.strftime('%d-%m')}"}, ignore_index=True)
 
-        for sheet_name, data_df in zip(["Max Spring", "Min Spring", "Max Fall", "Min Fall"], [max_spring_df, min_spring_df, max_fall_df, min_fall_df]):
-            ws = wb.create_sheet(title=sheet_name)
-            for r_idx, row in enumerate(dataframe_to_rows(data_df, index=False, header=True)):
-                for c_idx, value in enumerate(row):
-                    ws.cell(row=r_idx + 1, column=c_idx + 1, value=value)
-
-        # Sheet 6: Periods
-        ws6 = wb.create_sheet(title="Periods")
-        ws6.cell(row=1, column=1, value="Separation Date")
-        ws6.cell(row=1, column=2, value=f"{sep_month}-{sep_day}")
-        ws6.cell(row=2, column=1, value="Spring Volume Period")
-        ws6.cell(row=2, column=2, value=spring_volume_period)
-        ws6.cell(row=3, column=1, value="Fall Volume Period")
-        ws6.cell(row=3, column=2, value=fall_volume_period)
-
-        for r_idx, row in enumerate(dataframe_to_rows(period_df, index=False, header=True), start=5):
+    for sheet_name, data_df in zip(["Max Spring", "Min Spring", "Max Fall", "Min Fall"], [max_spring_df, min_spring_df, max_fall_df, min_fall_df]):
+        ws = wb.create_sheet(title=sheet_name)
+        for r_idx, row in enumerate(dataframe_to_rows(data_df, index=False, header=True)):
             for c_idx, value in enumerate(row):
-                ws6.cell(row=r_idx, column=c_idx + 1, value=value)
+                ws.cell(row=r_idx + 1, column=c_idx + 1, value=value)
 
-        # Add download link for the Excel file
-        st.markdown(download_excel_link(
-            wb, 'Hydrograph_Data.xlsx'), unsafe_allow_html=True)
+    # Sheet 6: Periods
+    ws6 = wb.create_sheet(title="Periods")
+    ws6.cell(row=1, column=1, value="Separation Date")
+    ws6.cell(row=1, column=2, value=f"{sep_month}-{sep_day}")
+    ws6.cell(row=2, column=1, value="Spring Volume Period")
+    ws6.cell(row=2, column=2, value=spring_volume_period)
+    ws6.cell(row=3, column=1, value="Fall Volume Period")
+    ws6.cell(row=3, column=2, value=fall_volume_period)
 
-    else:
-        st.info("Please upload a CSV file.")
+    for r_idx, row in enumerate(dataframe_to_rows(period_df, index=False, header=True), start=5):
+        for c_idx, value in enumerate(row):
+            ws6.cell(row=r_idx, column=c_idx + 1, value=value)
+
+    # Add download link for the Excel file
+    st.markdown(download_excel_link(
+        wb, 'Hydrograph_Data.xlsx'), unsafe_allow_html=True)
+
+else:
+    st.info("Please upload a CSV file.")
 
 # # Hydrograph Producer page
 # elif choice == "Hydrograph Producer":
