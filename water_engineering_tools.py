@@ -124,14 +124,14 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
             month=sep_month, day=sep_day)]
 
         # Compute statistics
-        spring_max_flow = spring_data['flow'].max()
-        spring_min_flow = spring_data['flow'].min()
-        fall_max_flow = fall_data['flow'].max()
-        fall_min_flow = fall_data['flow'].min()
-        spring_max_date = spring_data['flow'].idxmax()
-        spring_min_date = spring_data['flow'].idxmin()
-        fall_max_date = fall_data['flow'].idxmax()
-        fall_min_date = fall_data['flow'].idxmin()
+        spring_max_flow = spring_data['Flow'].max()
+        spring_min_flow = spring_data['Flow'].min()
+        fall_max_flow = fall_data['Flow'].max()
+        fall_min_flow = fall_data['Flow'].min()
+        spring_max_date = spring_data['Flow'].idxmax()
+        spring_min_date = spring_data['Flow'].idxmin()
+        fall_max_date = fall_data['Flow'].idxmax()
+        fall_min_date = fall_data['Flow'].idxmin()
 
         # Add data to summary tables
         max_spring_df = max_spring_df.append(
@@ -145,7 +145,7 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
 
         # Plot hydrograph
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(yearly_data.index, yearly_data['flow'], label="Flow")
+        ax.plot(yearly_data.index, yearly_data['Flow'], label="Flow")
 
         # Add max and min points
         ax.plot(spring_max_date, spring_max_flow, 'ro', label="Max (Spring)")
@@ -159,16 +159,16 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         ax.axvline(separation_date, linestyle='--',
                    color='k', label="Separation Date")
 
-        spring_volume_start = spring_data['flow'].rolling(spring_volume_period).sum(
+        spring_volume_start = spring_data['Flow'].rolling(spring_volume_period).sum(
         ).idxmax() - pd.Timedelta(days=spring_volume_period - 1)
-        spring_volume_end = spring_data['flow'].rolling(
+        spring_volume_end = spring_data['Flow'].rolling(
             spring_volume_period).sum().idxmax()
         ax.axvspan(spring_volume_start, spring_volume_end,
                    color='r', alpha=0.3, label="Spring Volume Period")
 
-        fall_volume_start = fall_data['flow'].rolling(
+        fall_volume_start = fall_data['Flow'].rolling(
             fall_volume_period).sum().idxmax() - pd.Timedelta(days=fall_volume_period - 1)
-        fall_volume_end = fall_data['flow'].rolling(
+        fall_volume_end = fall_data['Flow'].rolling(
             fall_volume_period).sum().idxmax()
         ax.axvspan(fall_volume_start, fall_volume_end, color='g',
                    alpha=0.3, label="Fall Volume Period")
@@ -247,7 +247,7 @@ if choice == "Hydrograph Producer":
     st.header("Hydrograph Producer")
 
     uploaded_file = st.file_uploader(
-        "Upload a CSV file with daily flow data (date, flow):", type="csv")
+        "Upload a CSV file with daily flow data (Date, Flow, Year):", type="csv")
     if uploaded_file is not None:
         daily_flow_data = pd.read_csv(uploaded_file)
         daily_flow_data['Date'] = pd.to_datetime(daily_flow_data['Date'])
@@ -604,8 +604,8 @@ elif choice == "Frequency Analysis":
         "Importer un fichier CSV d'une seule colonne qui comprend l'ensemble de l'échantillon.", type="csv")
 
     if uploaded_file is not None:
-        data = pd.read_csv(uploaded_file, header=None, names=['flow'])
-        max_flow = data['flow'].to_numpy()
+        data = pd.read_csv(uploaded_file, header=None, names=['Flow'])
+        max_flow = data['Flow'].to_numpy()
 
         aic_bic_params = {}
         for name, distr in distributions.items():
