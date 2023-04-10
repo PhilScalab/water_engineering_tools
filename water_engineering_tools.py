@@ -467,7 +467,7 @@ elif choice == "Camera Viewer":
             for file in files:
                 os.remove(os.path.join(root, file))
         shutil.rmtree("temp_folder")
-        os.r
+        # os.r
 
 # Frequency Analysis page
 elif choice == "Frequency Analysis":
