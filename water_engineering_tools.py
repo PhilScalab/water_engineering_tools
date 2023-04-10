@@ -177,7 +177,7 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         ax.set_xlabel("Date")
         ax.set_ylabel("Flow")
         ax.legend(loc="best")
-        ax.xaxis.set_major_formatter(mdate.DateFormatter("%b"))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
 
         # Save the figure to a temporary file
         temp_file = tempfile.NamedTemporaryFile(delete=False)
