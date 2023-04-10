@@ -213,7 +213,6 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         fig.savefig(img_file, dpi=fig.dpi, bbox_inches='tight')
         ws1.add_image(Image(img_file), f"A{year - unique_years.min() + 1}")
 
-
         # Delete the temporary file
         os.unlink(temp_file.name)
 
@@ -232,7 +231,7 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         try:
             os.remove(f"temp_image_{year}.png")
         except FileNotFoundError:
-        pass
+            pass
     return wb
 
 
