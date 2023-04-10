@@ -397,7 +397,8 @@ elif choice == "Peak Flow Comparison":
 
         st.write(f"Mean of ratios: {mean_ratio}")
 
-# Camera Viewer page
+
+# # Camera Viewer page
 elif choice == "Camera Viewer":
     st.title("Camera Viewer")
 
@@ -417,7 +418,7 @@ elif choice == "Camera Viewer":
 
         for root, _, files in os.walk("temp_folder"):
             for file in files:
-                if file.endswith(".png"):
+                if file.endswith(".jpg"):
                     image_files.append(os.path.join(root, file))
                 elif file == "Hydrograph.csv":
                     hydrograph_df = pd.read_csv(os.path.join(
@@ -432,8 +433,8 @@ elif choice == "Camera Viewer":
         # Step 4: For each image file, display the image and plot the graphs
         for img_file in image_files:
             # Extract the time from the image filename
-            # Remove "image.png" from the filename
-            img_time_str = os.path.basename(img_file)[:-9]
+            # Remove "image.jpg" from the filename
+            img_time_str = os.path.basename(img_file)[:-8]
             img_time = datetime.strptime(img_time_str, "%m%d%Y%H%M")
 
             st.image(
@@ -466,8 +467,78 @@ elif choice == "Camera Viewer":
         for root, _, files in os.walk("temp_folder"):
             for file in files:
                 os.remove(os.path.join(root, file))
-        shutil.rmtree("temp_folder")
-        # os.r
+        os.rmdir("temp_folder")
+
+# elif choice == "Camera Viewer":
+#     st.title("Camera Viewer")
+
+#     # Step 1: Add a file uploader for the zip file
+#     uploaded_file = st.file_uploader("Choose a zip file", type="zip")
+
+#     if uploaded_file is not None:
+#         # Step 2: Extract the zip file and read its contents
+#         with zipfile.ZipFile(uploaded_file, "r") as zfile:
+#             zfile.extractall("temp_folder")
+
+#         # Step 3: Process the image files and the CSV files
+#         image_files = []
+#         hydrograph_df = None
+#         rain_df = None
+#         temperature_df = None
+
+#         for root, _, files in os.walk("temp_folder"):
+#             for file in files:
+#                 if file.endswith(".png"):
+#                     image_files.append(os.path.join(root, file))
+#                 elif file == "Hydrograph.csv":
+#                     hydrograph_df = pd.read_csv(os.path.join(
+#                         root, file), parse_dates=[["Date", "Time"]])
+#                 elif file == "Rain.csv":
+#                     rain_df = pd.read_csv(os.path.join(
+#                         root, file), parse_dates=[["Date", "Time"]])
+#                 elif file == "Temperature.csv":
+#                     temperature_df = pd.read_csv(os.path.join(
+#                         root, file), parse_dates=[["Date", "Time"]])
+
+#         # Step 4: For each image file, display the image and plot the graphs
+#         for img_file in image_files:
+#             # Extract the time from the image filename
+#             # Remove "image.png" from the filename
+#             img_time_str = os.path.basename(img_file)[:-9]
+#             img_time = datetime.strptime(img_time_str, "%m%d%Y%H%M")
+
+#             st.image(
+#                 img_file, caption=f"Image taken at {img_time.strftime('%Y-%m-%d %H:%M')}")
+
+#             fig, ax = plt.subplots(3, 1, figsize=(10, 15), sharex=True)
+#             for idx, (df, title, ylabel) in enumerate(zip([hydrograph_df, rain_df, temperature_df], ["Flow", "Rain", "Temperature"], ["Flow", "Rain", "Temperature"])):
+#                 # Filter the data within 15 days before and after the image time
+#                 mask = (df["Date_Time"] >= img_time - timedelta(days=15)
+#                         ) & (df["Date_Time"] <= img_time + timedelta(days=15))
+#                 data = df[mask]
+
+#                 # Plot the graph
+#                 ax[idx].plot(data["Date_Time"], data[title], label=title)
+#                 ax[idx].set_ylabel(ylabel)
+
+#                 # Add a red dot at the image time
+#                 closest_time = data.iloc[(
+#                     data["Date_Time"] - img_time).abs().idxmin()]["Date_Time"]
+#                 ax[idx].plot(closest_time, data.loc[data["Date_Time"] ==
+#                                                     closest_time, title].values[0], "ro", label="Image time")
+
+#                 ax[idx].legend()
+
+#             plt.xlabel("Date")
+#             plt.xticks(rotation=45)
+#             st.pyplot(fig)
+
+#         # Clean up the temporary folder
+#         for root, _, files in os.walk("temp_folder"):
+#             for file in files:
+#                 os.remove(os.path.join(root, file))
+#         shutil.rmtree("temp_folder")
+#         # os.r
 
 # Frequency Analysis page
 elif choice == "Frequency Analysis":
