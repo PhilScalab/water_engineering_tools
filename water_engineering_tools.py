@@ -185,7 +185,7 @@ elif choice == "Hydrograph Producer":
             ax.set_title(f"Hydrograph for {year}")
             ax.set_ylabel("Flow")
             ax.legend(loc="best")
-            ax.xaxis.set_major_formatter(mdate.DateFormatter("%b"))
+            ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
 
             st.pyplot(fig)
 
