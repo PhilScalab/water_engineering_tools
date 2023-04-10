@@ -294,6 +294,8 @@ if choice == "Hydrograph Producer":
                 wb, "hydrograph_analysis.xlsx"), unsafe_allow_html=True)
 
         # Convert the "Date" column to a datetime object
+        df = pd.read_csv(uploaded_file)
+        st.write(df)
         df["Date"] = pd.to_datetime(df["Date"])
         years = df["Year"].unique()
         st.subheader("Hydrographs")
