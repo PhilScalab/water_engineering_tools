@@ -117,21 +117,46 @@ elif choice == "Hydrograph Producer":
         # Convert the "Date" column to a datetime object
         df["Date"] = pd.to_datetime(df["Date"])
 
+        sep_day = st.number_input(
+            "Separation day (default: 1)", min_value=1, max_value=31, value=1)
+        sep_month = st.number_input(
+            "Separation month (default: 7)", min_value=1, max_value=12, value=7)
+        spring_volume_period = st.number_input(
+            "Spring volume period (default: 30)", min_value=1, value=30)
+        fall_volume_period = st.number_input(
+            "Fall volume period (default: 10)", min_value=1, value=10)
+
         years = df["Year"].unique()
         st.subheader("Hydrographs")
         for year in years:
             df_year = df[df["Year"] == year]
+            df_year.set_index("Date", inplace=True)
 
-            # Find the maximum and minimum values and their dates
-            max_value = df_year["Flow"].max()
-            min_value = df_year["Flow"].min()
-            max_date = df_year[df_year["Flow"] == max_value]["Date"].iloc[0]
-            min_date = df_year[df_year["Flow"] == min_value]["Date"].iloc[0]
+            # Calculate the rolling sum of flow for spring and fall periods
+            df_year["Rolling_Spring"] = df_year["Flow"].rolling(
+                window=spring_volume_period).sum()
+            df_year["Rolling_Fall"] = df_year["Flow"].rolling(
+                window=fall_volume_period).sum()
+
+            # Find the maximum rolling sum periods for spring and fall
+            spring_start_date = df_year["Rolling_Spring"].idxmax(
+            ) - pd.Timedelta(days=spring_volume_period - 1)
+            spring_end_date = df_year["Rolling_Spring"].idxmax()
+            fall_start_date = df_year["Rolling_Fall"].idxmax(
+            ) - pd.Timedelta(days=fall_volume_period - 1)
+            fall_end_date = df_year["Rolling_Fall"].idxmax()
 
             fig, ax = plt.subplots(figsize=(15, 6))
-            ax.plot(df_year["Date"], df_year["Flow"])
-            ax.scatter([max_date], [max_value], color="red", label="Maximum")
-            ax.scatter([min_date], [min_value], color="green", label="Minimum")
+            ax.plot(df_year.index, df_year["Flow"])
+            ax.axvline(pd.Timestamp(year, sep_month, sep_day),
+                       color="black", linestyle="--", label="Separation Date")
+
+            # Highlight the spring and fall volume periods in red and green, respectively
+            ax.axvspan(spring_start_date, spring_end_date, alpha=0.3,
+                       color="red", label="Spring Volume Period")
+            ax.axvspan(fall_start_date, fall_end_date, alpha=0.3,
+                       color="green", label="Fall Volume Period")
+
             ax.set_title(f"Hydrograph for {year}")
 
             # Format the x-axis to display the month of the year
@@ -143,9 +168,53 @@ elif choice == "Hydrograph Producer":
             st.pyplot(fig)
 
             st.write(
-                f"Maximum: {max_value} on {max_date.strftime('%Y-%m-%d')}")
+                f"Spring Volume Period: {spring_start_date.strftime('%d-%m')} to {spring_end_date.strftime('%d-%m')}")
             st.write(
-                f"Minimum: {min_value} on {min_date.strftime('%Y-%m-%d')}")
+                f"Fall Volume Period: {fall_start_date.strftime('%d-%m')} to {fall_end_date.strftime('%d-%m')}")
+
+
+# Hydrograph Producer page
+# elif choice == "Hydrograph Producer":
+#     st.title("Hydrograph Producer")
+
+#     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+
+#     if uploaded_file is not None:
+#         df = pd.read_csv(uploaded_file)
+#         st.write(df)
+
+#         # Convert the "Date" column to a datetime object
+#         df["Date"] = pd.to_datetime(df["Date"])
+
+#         years = df["Year"].unique()
+#         st.subheader("Hydrographs")
+#         for year in years:
+#             df_year = df[df["Year"] == year]
+
+#             # Find the maximum and minimum values and their dates
+#             max_value = df_year["Flow"].max()
+#             min_value = df_year["Flow"].min()
+#             max_date = df_year[df_year["Flow"] == max_value]["Date"].iloc[0]
+#             min_date = df_year[df_year["Flow"] == min_value]["Date"].iloc[0]
+
+#             fig, ax = plt.subplots(figsize=(15, 6))
+#             ax.plot(df_year["Date"], df_year["Flow"])
+#             ax.scatter([max_date], [max_value], color="red", label="Maximum")
+#             ax.scatter([min_date], [min_value], color="green", label="Minimum")
+#             ax.set_title(f"Hydrograph for {year}")
+
+#             # Format the x-axis to display the month of the year
+#             ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+
+#             ax.set_xlabel("Month")
+#             ax.set_ylabel("Flow")
+#             ax.legend(loc='best')
+#             st.pyplot(fig)
+
+#             st.write(
+#                 f"Maximum: {max_value} on {max_date.strftime('%Y-%m-%d')}")
+#             st.write(
+#                 f"Minimum: {min_value} on {min_date.strftime('%Y-%m-%d')}")
 
 
 # Peak Flow Comparison page
