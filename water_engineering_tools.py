@@ -419,7 +419,7 @@ elif choice == "Camera Viewer":
 
         for root, _, files in os.walk("temp_folder"):
             for file in files:
-                if file.endswith(".jpg"):
+                if file.lower().endswith(".jpg"):
                     image_files.append(os.path.join(root, file))
                 elif file == "Hydrograph.csv":
                     hydrograph_df = pd.read_csv(os.path.join(
