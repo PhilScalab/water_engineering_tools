@@ -463,11 +463,14 @@ elif choice == "Camera Viewer":
             plt.xticks(rotation=45)
             st.pyplot(fig)
 
+        # # Clean up the temporary folder
+        # for root, _, files in os.walk("temp_folder"):
+        #     for file in files:
+        #         os.remove(os.path.join(root, file))
+        # os.rmdir("temp_folder")
+
         # Clean up the temporary folder
-        for root, _, files in os.walk("temp_folder"):
-            for file in files:
-                os.remove(os.path.join(root, file))
-        os.rmdir("temp_folder")
+        shutil.rmtree("temp_folder")
 
 # elif choice == "Camera Viewer":
 #     st.title("Camera Viewer")
