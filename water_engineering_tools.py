@@ -128,10 +128,14 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         spring_min_flow = spring_data['Flow'].min()
         fall_max_flow = fall_data['Flow'].max()
         fall_min_flow = fall_data['Flow'].min()
-        spring_max_date = spring_data['Flow'].idxmax()
-        spring_min_date = spring_data['Flow'].idxmin()
-        fall_max_date = fall_data['Flow'].idxmax()
-        fall_min_date = fall_data['Flow'].idxmin()
+        spring_max_date = spring_data['Flow'].idxmax(
+        ) if not spring_data.empty else None
+        spring_min_date = spring_data['Flow'].idxmin(
+        ) if not spring_data.empty else None
+        fall_max_date = fall_data['Flow'].idxmax(
+        ) if not fall_data.empty else None
+        fall_min_date = fall_data['Flow'].idxmin(
+        ) if not fall_data.empty else None
 
         # Add data to summary tables
         max_spring_df = max_spring_df.append(
