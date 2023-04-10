@@ -294,12 +294,12 @@ if choice == "Hydrograph Producer":
                 wb, "hydrograph_analysis.xlsx"), unsafe_allow_html=True)
 
         # Convert the "Date" column to a datetime object
-        df = daily_flow_data
-        df["Date"] = pd.to_datetime(df["Date"])
-        years = df["Year"].unique()
+        # df = daily_flow_data
+        # df["Date"] = pd.to_datetime(df["Date"])
+        # years = df["Year"].unique()
         st.subheader("Hydrographs")
         for year in years:
-            df_year = df[df["Year"] == year]
+            df_year = daily_flow_data[daily_flow_data["Year"] == year]
             df_year.set_index("Date", inplace=True)
 
             # Calculate the rolling sum of flow for spring and fall periods
