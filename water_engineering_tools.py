@@ -442,7 +442,7 @@ elif choice == "Camera Viewer":
             # Extract the time from the image filename
             # Remove "image.jpg" from the filename
             img_time_str = os.path.basename(img_file)[:-8]
-            img_time = datetime.strptime(img_time_str, "%m%d%Y%H%M")
+            img_time = datetime.strptime(img_time_str, "%m-%d-%Y-%H-%M")
 
             st.image(
                 img_file, caption=f"Image taken at {img_time.strftime('%Y-%m-%d %H:%M')}")
