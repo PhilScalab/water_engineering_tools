@@ -85,7 +85,8 @@ def download_link(document, filename):
         file = base64.b64encode(buffer.read()).decode('utf-8')
     return f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{file}" download="{filename}">Download Word document</a>'
 
- Function to create a download link for the generated Excel file
+# Function to create a download link for the generated Excel file
+
 
 def download_excel_link(excel_file, filename):
     with io.BytesIO() as buffer:
@@ -93,7 +94,6 @@ def download_excel_link(excel_file, filename):
         buffer.seek(0)
         file = base64.b64encode(buffer.read()).decode('utf-8')
     return f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{file}" download="{filename}">Download Excel file</a>'
-
 
 
 def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_volume_period, fall_volume_period):
@@ -104,18 +104,24 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
     ws1 = wb.active
     ws1.title = "Hydrographs"
 
-    max_spring_df = pd.DataFrame(columns=["Year", "Max Flow Spring", "Max Flow Date"])
-    min_spring_df = pd.DataFrame(columns=["Year", "Min Flow Spring", "Min Flow Date"])
-    max_fall_df = pd.DataFrame(columns=["Year", "Max Flow Fall", "Max Flow Date"])
-    min_fall_df = pd.DataFrame(columns=["Year", "Min Flow Fall", "Min Flow Date"])
+    max_spring_df = pd.DataFrame(
+        columns=["Year", "Max Flow Spring", "Max Flow Date"])
+    min_spring_df = pd.DataFrame(
+        columns=["Year", "Min Flow Spring", "Min Flow Date"])
+    max_fall_df = pd.DataFrame(
+        columns=["Year", "Max Flow Fall", "Max Flow Date"])
+    min_fall_df = pd.DataFrame(
+        columns=["Year", "Min Flow Fall", "Min Flow Date"])
     period_df = pd.DataFrame(columns=["Year", "Spring Period", "Fall Period"])
 
     for year in unique_years:
         yearly_data = daily_flow_data[daily_flow_data.index.year == year]
 
         # Spring and Fall data
-        spring_data = yearly_data.loc[yearly_data.index < yearly_data.index[0].replace(month=sep_month, day=sep_day)]
-        fall_data = yearly_data.loc[yearly_data.index >= yearly_data.index[0].replace(month=sep_month, day=sep_day)]
+        spring_data = yearly_data.loc[yearly_data.index < yearly_data.index[0].replace(
+            month=sep_month, day=sep_day)]
+        fall_data = yearly_data.loc[yearly_data.index >= yearly_data.index[0].replace(
+            month=sep_month, day=sep_day)]
 
         # Compute statistics
         spring_max_flow = spring_data['flow'].max()
@@ -128,10 +134,14 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         fall_min_date = fall_data['flow'].idxmin()
 
         # Add data to summary tables
-        max_spring_df = max_spring_df.append({"Year": year, "Max Flow Spring": spring_max_flow, "Max Flow Date": spring_max_date.strftime('%d-%m')}, ignore_index=True)
-        min_spring_df = min_spring_df.append({"Year": year, "Min Flow Spring": spring_min_flow, "Min Flow Date": spring_min_date.strftime('%d-%m')}, ignore_index=True)
-        max_fall_df = max_fall_df.append({"Year": year, "Max Flow Fall": fall_max_flow, "Max Flow Date": fall_max_date.strftime('%d-%m')}, ignore_index=True)
-        min_fall_df = min_fall_df.append({"Year": year, "Min Flow Fall": fall_min_flow, "Min Flow Date": fall_min_date.strftime('%d-%m')}, ignore_index=True)
+        max_spring_df = max_spring_df.append(
+            {"Year": year, "Max Flow Spring": spring_max_flow, "Max Flow Date": spring_max_date.strftime('%d-%m')}, ignore_index=True)
+        min_spring_df = min_spring_df.append(
+            {"Year": year, "Min Flow Spring": spring_min_flow, "Min Flow Date": spring_min_date.strftime('%d-%m')}, ignore_index=True)
+        max_fall_df = max_fall_df.append({"Year": year, "Max Flow Fall": fall_max_flow,
+                                          "Max Flow Date": fall_max_date.strftime('%d-%m')}, ignore_index=True)
+        min_fall_df = min_fall_df.append({"Year": year, "Min Flow Fall": fall_min_flow,
+                                          "Min Flow Date": fall_min_date.strftime('%d-%m')}, ignore_index=True)
 
         # Plot hydrograph
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -144,16 +154,24 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         ax.plot(fall_min_date, fall_min_flow, 'go', label="Min (Fall)")
 
         # Add separation date and spring/fall volume periods
-        separation_date = yearly_data.index[0].replace(month=sep_month, day=sep_day)
-        ax.axvline(separation_date, linestyle='--', color='k', label="Separation Date")
+        separation_date = yearly_data.index[0].replace(
+            month=sep_month, day=sep_day)
+        ax.axvline(separation_date, linestyle='--',
+                   color='k', label="Separation Date")
 
-        spring_volume_start = spring_data['flow'].rolling(spring_volume_period).sum().idxmax() - pd.Timedelta(days=spring_volume_period - 1)
-        spring_volume_end = spring_data['flow'].rolling(spring_volume_period).sum().idxmax()
-        ax.axvspan(spring_volume_start, spring_volume_end, color='r', alpha=0.3, label="Spring Volume Period")
+        spring_volume_start = spring_data['flow'].rolling(spring_volume_period).sum(
+        ).idxmax() - pd.Timedelta(days=spring_volume_period - 1)
+        spring_volume_end = spring_data['flow'].rolling(
+            spring_volume_period).sum().idxmax()
+        ax.axvspan(spring_volume_start, spring_volume_end,
+                   color='r', alpha=0.3, label="Spring Volume Period")
 
-        fall_volume_start = fall_data['flow'].rolling(fall_volume_period).sum().idxmax() - pd.Timedelta(days=fall_volume_period - 1)
-        fall_volume_end = fall_data['flow'].rolling(fall_volume_period).sum().idxmax()
-        ax.axvspan(fall_volume_start, fall_volume_end, color='g', alpha=0.3, label="Fall Volume Period")
+        fall_volume_start = fall_data['flow'].rolling(
+            fall_volume_period).sum().idxmax() - pd.Timedelta(days=fall_volume_period - 1)
+        fall_volume_end = fall_data['flow'].rolling(
+            fall_volume_period).sum().idxmax()
+        ax.axvspan(fall_volume_start, fall_volume_end, color='g',
+                   alpha=0.3, label="Fall Volume Period")
 
         ax.set_title(f"Hydrograph {year}")
         ax.set_xlabel("Date")
@@ -178,7 +196,8 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         os.unlink(temp_file.name)
 
         # Add data to periods table
-        period_df = period_df.append({"Year": year, "Spring Period": f"{spring_volume_start.strftime('%d-%m')} - {spring_volume_end.strftime('%d-%m')}", "Fall Period": f"{fall_volume_start.strftime('%d-%m')} - {fall_volume_end.strftime('%d-%m')}"}, ignore_index=True)
+        period_df = period_df.append({"Year": year, "Spring Period": f"{spring_volume_start.strftime('%d-%m')} - {spring_volume_end.strftime('%d-%m')}",
+                                      "Fall Period": f"{fall_volume_start.strftime('%d-%m')} - {fall_volume_end.strftime('%d-%m')}"}, ignore_index=True)
 
     # Create remaining sheets in the Excel workbook
     for sheet_name, df in zip(["Max Spring", "Min Spring", "Max Fall", "Min Fall", "Periods"], [max_spring_df, min_spring_df, max_fall_df, min_fall_df, period_df]):
@@ -187,6 +206,7 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
             ws.append(r)
 
     return wb
+
 
 def download_link(workbook, filename):
     with io.BytesIO() as buffer:
@@ -226,20 +246,26 @@ if choice == "Home":
 if choice == "Hydrograph Producer":
     st.header("Hydrograph Producer")
 
-    uploaded_file = st.file_uploader("Upload a CSV file with daily flow data (date, flow):", type="csv")
+    uploaded_file = st.file_uploader(
+        "Upload a CSV file with daily flow data (date, flow):", type="csv")
     if uploaded_file is not None:
-        daily_flow_data = pd.read_csv(uploaded_file, parse_dates=['date'], index_col='date')
+        daily_flow_data = pd.read_csv(uploaded_file, parse_dates=[
+                                      'date'], index_col='date')
 
-        sep_day = st.number_input("Separation Day (default: 1):", min_value=1, max_value=31, value=1)
-        sep_month = st.number_input("Separation Month (default: 7):", min_value=1, max_value=12, value=7)
-        spring_volume_period = st.number_input("Spring Volume Period (default: 30):", min_value=1, max_value=365, value=30)
-        fall_volume_period = st.number_input("Fall Volume Period (default: 10):", min_value=1, max_value=365, value=10)
+        sep_day = st.number_input(
+            "Separation Day (default: 1):", min_value=1, max_value=31, value=1)
+        sep_month = st.number_input(
+            "Separation Month (default: 7):", min_value=1, max_value=12, value=7)
+        spring_volume_period = st.number_input(
+            "Spring Volume Period (default: 30):", min_value=1, max_value=365, value=30)
+        fall_volume_period = st.number_input(
+            "Fall Volume Period (default: 10):", min_value=1, max_value=365, value=10)
 
         if st.button("Generate Hydrographs and Tables"):
-            wb = generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_volume_period, fall_volume_period)
-            st.markdown(download_link(wb, "hydrograph_analysis.xlsx"), unsafe_allow_html=True)
-
-
+            wb = generate_hydrographs_and_tables(
+                daily_flow_data, sep_day, sep_month, spring_volume_period, fall_volume_period)
+            st.markdown(download_link(
+                wb, "hydrograph_analysis.xlsx"), unsafe_allow_html=True)
 
 
 # # Hydrograph Producer page
