@@ -11,6 +11,11 @@ import base64
 import docx
 import matplotlib.dates as mdates
 from scipy.stats import norm, lognorm, pearson3, gamma, gumbel_r, genextreme
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.drawing.image import Image
+import tempfile
+import os
 
 # Functions for Frequency Analysis
 
@@ -80,6 +85,116 @@ def download_link(document, filename):
         file = base64.b64encode(buffer.read()).decode('utf-8')
     return f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{file}" download="{filename}">Download Word document</a>'
 
+ Function to create a download link for the generated Excel file
+
+def download_excel_link(excel_file, filename):
+    with io.BytesIO() as buffer:
+        excel_file.save(buffer)
+        buffer.seek(0)
+        file = base64.b64encode(buffer.read()).decode('utf-8')
+    return f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{file}" download="{filename}">Download Excel file</a>'
+
+
+
+def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_volume_period, fall_volume_period):
+    unique_years = daily_flow_data.index.year.unique()
+
+    # Create a new Excel workbook
+    wb = Workbook()
+    ws1 = wb.active
+    ws1.title = "Hydrographs"
+
+    max_spring_df = pd.DataFrame(columns=["Year", "Max Flow Spring", "Max Flow Date"])
+    min_spring_df = pd.DataFrame(columns=["Year", "Min Flow Spring", "Min Flow Date"])
+    max_fall_df = pd.DataFrame(columns=["Year", "Max Flow Fall", "Max Flow Date"])
+    min_fall_df = pd.DataFrame(columns=["Year", "Min Flow Fall", "Min Flow Date"])
+    period_df = pd.DataFrame(columns=["Year", "Spring Period", "Fall Period"])
+
+    for year in unique_years:
+        yearly_data = daily_flow_data[daily_flow_data.index.year == year]
+
+        # Spring and Fall data
+        spring_data = yearly_data.loc[yearly_data.index < yearly_data.index[0].replace(month=sep_month, day=sep_day)]
+        fall_data = yearly_data.loc[yearly_data.index >= yearly_data.index[0].replace(month=sep_month, day=sep_day)]
+
+        # Compute statistics
+        spring_max_flow = spring_data['flow'].max()
+        spring_min_flow = spring_data['flow'].min()
+        fall_max_flow = fall_data['flow'].max()
+        fall_min_flow = fall_data['flow'].min()
+        spring_max_date = spring_data['flow'].idxmax()
+        spring_min_date = spring_data['flow'].idxmin()
+        fall_max_date = fall_data['flow'].idxmax()
+        fall_min_date = fall_data['flow'].idxmin()
+
+        # Add data to summary tables
+        max_spring_df = max_spring_df.append({"Year": year, "Max Flow Spring": spring_max_flow, "Max Flow Date": spring_max_date.strftime('%d-%m')}, ignore_index=True)
+        min_spring_df = min_spring_df.append({"Year": year, "Min Flow Spring": spring_min_flow, "Min Flow Date": spring_min_date.strftime('%d-%m')}, ignore_index=True)
+        max_fall_df = max_fall_df.append({"Year": year, "Max Flow Fall": fall_max_flow, "Max Flow Date": fall_max_date.strftime('%d-%m')}, ignore_index=True)
+        min_fall_df = min_fall_df.append({"Year": year, "Min Flow Fall": fall_min_flow, "Min Flow Date": fall_min_date.strftime('%d-%m')}, ignore_index=True)
+
+        # Plot hydrograph
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(yearly_data.index, yearly_data['flow'], label="Flow")
+
+        # Add max and min points
+        ax.plot(spring_max_date, spring_max_flow, 'ro', label="Max (Spring)")
+        ax.plot(spring_min_date, spring_min_flow, 'go', label="Min (Spring)")
+        ax.plot(fall_max_date, fall_max_flow, 'ro', label="Max (Fall)")
+        ax.plot(fall_min_date, fall_min_flow, 'go', label="Min (Fall)")
+
+        # Add separation date and spring/fall volume periods
+        separation_date = yearly_data.index[0].replace(month=sep_month, day=sep_day)
+        ax.axvline(separation_date, linestyle='--', color='k', label="Separation Date")
+
+        spring_volume_start = spring_data['flow'].rolling(spring_volume_period).sum().idxmax() - pd.Timedelta(days=spring_volume_period - 1)
+        spring_volume_end = spring_data['flow'].rolling(spring_volume_period).sum().idxmax()
+        ax.axvspan(spring_volume_start, spring_volume_end, color='r', alpha=0.3, label="Spring Volume Period")
+
+        fall_volume_start = fall_data['flow'].rolling(fall_volume_period).sum().idxmax() - pd.Timedelta(days=fall_volume_period - 1)
+        fall_volume_end = fall_data['flow'].rolling(fall_volume_period).sum().idxmax()
+        ax.axvspan(fall_volume_start, fall_volume_end, color='g', alpha=0.3, label="Fall Volume Period")
+
+        ax.set_title(f"Hydrograph {year}")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Flow")
+        ax.legend(loc="best")
+        ax.xaxis.set_major_formatter(mdate.DateFormatter("%b"))
+
+        # Save the figure to a temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        fig.savefig(temp_file.name, format="png", dpi=300, bbox_inches="tight")
+        plt.close(fig)
+
+        # Add the image to the Excel workbook
+        img = Image(temp_file.name)
+        img.width = img.width // 4
+        img.height = img.height // 4
+        ws1.column_dimensions["A"].width = img.width // 6
+        ws1.row_dimensions[year - unique_years.min()].height = img.height
+        ws1.add_image(img, f"A{year - unique_years.min() + 1}")
+
+        # Delete the temporary file
+        os.unlink(temp_file.name)
+
+        # Add data to periods table
+        period_df = period_df.append({"Year": year, "Spring Period": f"{spring_volume_start.strftime('%d-%m')} - {spring_volume_end.strftime('%d-%m')}", "Fall Period": f"{fall_volume_start.strftime('%d-%m')} - {fall_volume_end.strftime('%d-%m')}"}, ignore_index=True)
+
+    # Create remaining sheets in the Excel workbook
+    for sheet_name, df in zip(["Max Spring", "Min Spring", "Max Fall", "Min Fall", "Periods"], [max_spring_df, min_spring_df, max_fall_df, min_fall_df, period_df]):
+        ws = wb.create_sheet(sheet_name)
+        for r in dataframe_to_rows(df, index=False, header=True):
+            ws.append(r)
+
+    return wb
+
+def download_link(workbook, filename):
+    with io.BytesIO() as buffer:
+        workbook.save(buffer)
+        buffer.seek(0)
+        file = base64.b64encode(buffer.read()).decode('utf-8')
+    return f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{file}" download="{filename}">Download Excel file</a>'
+
 
 # Page configuration
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
@@ -108,95 +223,104 @@ if choice == "Home":
     )
 
 
-# Function to create a download link for the generated Excel file
+if choice == "Hydrograph Producer":
+    st.header("Hydrograph Producer")
 
-def download_excel_link(excel_file, filename):
-    with io.BytesIO() as buffer:
-        excel_file.save(buffer)
-        buffer.seek(0)
-        file = base64.b64encode(buffer.read()).decode('utf-8')
-    return f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{file}" download="{filename}">Download Excel file</a>'
-
-
-# Hydrograph Producer page
-elif choice == "Hydrograph Producer":
-    # (The previous code for input and displaying hydrographs remains the same)
-
+    uploaded_file = st.file_uploader("Upload a CSV file with daily flow data (date, flow):", type="csv")
     if uploaded_file is not None:
-        # (The previous code for input and displaying hydrographs remains the same)
+        daily_flow_data = pd.read_csv(uploaded_file, parse_dates=['date'], index_col='date')
 
-        # Create an Excel file
-        wb = openpyxl.Workbook()
+        sep_day = st.number_input("Separation Day (default: 1):", min_value=1, max_value=31, value=1)
+        sep_month = st.number_input("Separation Month (default: 7):", min_value=1, max_value=12, value=7)
+        spring_volume_period = st.number_input("Spring Volume Period (default: 30):", min_value=1, max_value=365, value=30)
+        fall_volume_period = st.number_input("Fall Volume Period (default: 10):", min_value=1, max_value=365, value=10)
 
-        # Sheet 1: Hydrograph images
-        ws1 = wb.active
-        ws1.title = "Hydrograph"
-        img_height = 150
+        if st.button("Generate Hydrographs and Tables"):
+            wb = generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_volume_period, fall_volume_period)
+            st.markdown(download_link(wb, "hydrograph_analysis.xlsx"), unsafe_allow_html=True)
 
-        for idx, year in enumerate(years, start=1):
-            img_path = f"hydrograph_{year}.png"
-            img = Image(img_path)
-            img.width = int(img.width * img_height / img.height)
-            img.height = img_height
-            ws1.column_dimensions[get_column_letter(
-                idx)].width = img.width // 6
-            ws1.row_dimensions[1].height = img.height
-            ws1.add_image(img, f"{get_column_letter(idx)}1")
 
-        # Sheets 2 to 5: Max/Min Spring/Fall
-        max_spring_df = pd.DataFrame(
-            columns=["Year", "Max Flow Spring", "Max Flow Date"])
-        min_spring_df = pd.DataFrame(
-            columns=["Year", "Min Flow Spring", "Min Flow Date"])
-        max_fall_df = pd.DataFrame(
-            columns=["Year", "Max Flow Fall", "Max Flow Date"])
-        min_fall_df = pd.DataFrame(
-            columns=["Year", "Min Flow Fall", "Min Flow Date"])
-        period_df = pd.DataFrame(
-            columns=["Year", "Spring Period", "Fall Period"])
 
-        for year in years:
-            df_year = df[df["Year"] == year]
-            df_year.set_index("Date", inplace=True)
 
-            # (The previous code for calculating rolling sums, max/min values, and periods remains the same)
+# # Hydrograph Producer page
+# elif choice == "Hydrograph Producer":
+#     # (The previous code for input and displaying hydrographs remains the same)
 
-            max_spring_df = max_spring_df.append(
-                {"Year": year, "Max Flow Spring": spring_max, "Max Flow Date": spring_max_date.strftime('%d-%m')}, ignore_index=True)
-            min_spring_df = min_spring_df.append(
-                {"Year": year, "Min Flow Spring": spring_min, "Min Flow Date": spring_min_date.strftime('%d-%m')}, ignore_index=True)
-            max_fall_df = max_fall_df.append(
-                {"Year": year, "Max Flow Fall": fall_max, "Max Flow Date": fall_max_date.strftime('%d-%m')}, ignore_index=True)
-            min_fall_df = min_fall_df.append(
-                {"Year": year, "Min Flow Fall": fall_min, "Min Flow Date": fall_min_date.strftime('%d-%m')}, ignore_index=True)
-            period_df = period_df.append({"Year": year, "Spring Period": f"{spring_start_date.strftime('%d-%m')} to {spring_end_date.strftime('%d-%m')}",
-                                          "Fall Period": f"{fall_start_date.strftime('%d-%m')} to {fall_end_date.strftime('%d-%m')}"}, ignore_index=True)
+#     if uploaded_file is not None:
+#         # (The previous code for input and displaying hydrographs remains the same)
 
-    for sheet_name, data_df in zip(["Max Spring", "Min Spring", "Max Fall", "Min Fall"], [max_spring_df, min_spring_df, max_fall_df, min_fall_df]):
-        ws = wb.create_sheet(title=sheet_name)
-        for r_idx, row in enumerate(dataframe_to_rows(data_df, index=False, header=True)):
-            for c_idx, value in enumerate(row):
-                ws.cell(row=r_idx + 1, column=c_idx + 1, value=value)
+#         # Create an Excel file
+#         wb = openpyxl.Workbook()
 
-    # Sheet 6: Periods
-    ws6 = wb.create_sheet(title="Periods")
-    ws6.cell(row=1, column=1, value="Separation Date")
-    ws6.cell(row=1, column=2, value=f"{sep_month}-{sep_day}")
-    ws6.cell(row=2, column=1, value="Spring Volume Period")
-    ws6.cell(row=2, column=2, value=spring_volume_period)
-    ws6.cell(row=3, column=1, value="Fall Volume Period")
-    ws6.cell(row=3, column=2, value=fall_volume_period)
+#         # Sheet 1: Hydrograph images
+#         ws1 = wb.active
+#         ws1.title = "Hydrograph"
+#         img_height = 150
 
-    for r_idx, row in enumerate(dataframe_to_rows(period_df, index=False, header=True), start=5):
-        for c_idx, value in enumerate(row):
-            ws6.cell(row=r_idx, column=c_idx + 1, value=value)
+#         for idx, year in enumerate(years, start=1):
+#             img_path = f"hydrograph_{year}.png"
+#             img = Image(img_path)
+#             img.width = int(img.width * img_height / img.height)
+#             img.height = img_height
+#             ws1.column_dimensions[get_column_letter(
+#                 idx)].width = img.width // 6
+#             ws1.row_dimensions[1].height = img.height
+#             ws1.add_image(img, f"{get_column_letter(idx)}1")
 
-    # Add download link for the Excel file
-    st.markdown(download_excel_link(
-        wb, 'Hydrograph_Data.xlsx'), unsafe_allow_html=True)
+#         # Sheets 2 to 5: Max/Min Spring/Fall
+#         max_spring_df = pd.DataFrame(
+#             columns=["Year", "Max Flow Spring", "Max Flow Date"])
+#         min_spring_df = pd.DataFrame(
+#             columns=["Year", "Min Flow Spring", "Min Flow Date"])
+#         max_fall_df = pd.DataFrame(
+#             columns=["Year", "Max Flow Fall", "Max Flow Date"])
+#         min_fall_df = pd.DataFrame(
+#             columns=["Year", "Min Flow Fall", "Min Flow Date"])
+#         period_df = pd.DataFrame(
+#             columns=["Year", "Spring Period", "Fall Period"])
 
-else:
-    st.info("Please upload a CSV file.")
+#         for year in years:
+#             df_year = df[df["Year"] == year]
+#             df_year.set_index("Date", inplace=True)
+
+#             # (The previous code for calculating rolling sums, max/min values, and periods remains the same)
+
+#             max_spring_df = max_spring_df.append(
+#                 {"Year": year, "Max Flow Spring": spring_max, "Max Flow Date": spring_max_date.strftime('%d-%m')}, ignore_index=True)
+#             min_spring_df = min_spring_df.append(
+#                 {"Year": year, "Min Flow Spring": spring_min, "Min Flow Date": spring_min_date.strftime('%d-%m')}, ignore_index=True)
+#             max_fall_df = max_fall_df.append(
+#                 {"Year": year, "Max Flow Fall": fall_max, "Max Flow Date": fall_max_date.strftime('%d-%m')}, ignore_index=True)
+#             min_fall_df = min_fall_df.append(
+#                 {"Year": year, "Min Flow Fall": fall_min, "Min Flow Date": fall_min_date.strftime('%d-%m')}, ignore_index=True)
+#             period_df = period_df.append({"Year": year, "Spring Period": f"{spring_start_date.strftime('%d-%m')} to {spring_end_date.strftime('%d-%m')}",
+#                                           "Fall Period": f"{fall_start_date.strftime('%d-%m')} to {fall_end_date.strftime('%d-%m')}"}, ignore_index=True)
+
+#     for sheet_name, data_df in zip(["Max Spring", "Min Spring", "Max Fall", "Min Fall"], [max_spring_df, min_spring_df, max_fall_df, min_fall_df]):
+#         ws = wb.create_sheet(title=sheet_name)
+#         for r_idx, row in enumerate(dataframe_to_rows(data_df, index=False, header=True)):
+#             for c_idx, value in enumerate(row):
+#                 ws.cell(row=r_idx + 1, column=c_idx + 1, value=value)
+
+#     # Sheet 6: Periods
+#     ws6 = wb.create_sheet(title="Periods")
+#     ws6.cell(row=1, column=1, value="Separation Date")
+#     ws6.cell(row=1, column=2, value=f"{sep_month}-{sep_day}")
+#     ws6.cell(row=2, column=1, value="Spring Volume Period")
+#     ws6.cell(row=2, column=2, value=spring_volume_period)
+#     ws6.cell(row=3, column=1, value="Fall Volume Period")
+#     ws6.cell(row=3, column=2, value=fall_volume_period)
+
+#     for r_idx, row in enumerate(dataframe_to_rows(period_df, index=False, header=True), start=5):
+#         for c_idx, value in enumerate(row):
+#             ws6.cell(row=r_idx, column=c_idx + 1, value=value)
+
+#     # Add download link for the Excel file
+#     st.markdown(download_excel_link(
+#         wb, 'Hydrograph_Data.xlsx'), unsafe_allow_html=True)
+
+# else:
+#     st.info("Please upload a CSV file.")
 
 # # Hydrograph Producer page
 # elif choice == "Hydrograph Producer":
