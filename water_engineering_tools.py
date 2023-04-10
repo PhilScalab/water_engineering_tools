@@ -404,8 +404,9 @@ elif choice == "Camera Viewer":
 
     # Step 1: Add a file uploader for the zip file
     uploaded_file = st.file_uploader("Choose a zip file", type="zip")
-
+    st.write(f"Uploaded file: {uploaded_file}")
     if uploaded_file is not None:
+
         # Step 2: Extract the zip file and read its contents
         with zipfile.ZipFile(uploaded_file, "r") as zfile:
             zfile.extractall("temp_folder")
@@ -429,6 +430,12 @@ elif choice == "Camera Viewer":
                 elif file == "Temperature.csv":
                     temperature_df = pd.read_csv(os.path.join(
                         root, file), parse_dates=[["Date", "Time"]])
+
+        st.write(f"Uploaded file: {uploaded_file}")
+        st.write(f"Number of image files: {len(image_files)}")
+        st.write(f"Hydrograph dataframe: {hydrograph_df.head()}")
+        st.write(f"Rain dataframe: {rain_df.head()}")
+        st.write(f"Temperature dataframe: {temperature_df.head()}")
 
         # Step 4: For each image file, display the image and plot the graphs
         for img_file in image_files:
