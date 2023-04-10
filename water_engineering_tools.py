@@ -209,7 +209,10 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         img.height = img.height // 4
         ws1.column_dimensions["A"].width = img.width // 6
         ws1.row_dimensions[year - unique_years.min()].height = img.height
-        ws1.add_image(img, f"A{year - unique_years.min() + 1}")
+        img_file = f"temp_image_{year}.png"
+        fig.savefig(img_file, dpi=fig.dpi, bbox_inches='tight')
+        ws1.add_image(Image(img_file), f"A{year - unique_years.min() + 1}")
+
 
         # Delete the temporary file
         os.unlink(temp_file.name)
@@ -224,6 +227,12 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         for r in dataframe_to_rows(df, index=False, header=True):
             ws.append(r)
 
+    # Delete temporary image files
+    for year in range(min_year, max_year + 1):
+        try:
+            os.remove(f"temp_image_{year}.png")
+        except FileNotFoundError:
+        pass
     return wb
 
 
