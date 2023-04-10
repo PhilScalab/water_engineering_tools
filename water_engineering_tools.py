@@ -1,3 +1,6 @@
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.drawing.image import Image
+import openpyxl
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -104,101 +107,192 @@ if choice == "Home":
         """
     )
 
+
+# Function to create a download link for the generated Excel file
+
+def download_excel_link(excel_file, filename):
+    with io.BytesIO() as buffer:
+        excel_file.save(buffer)
+        buffer.seek(0)
+        file = base64.b64encode(buffer.read()).decode('utf-8')
+    return f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{file}" download="{filename}">Download Excel file</a>'
+
+
 # Hydrograph Producer page
 elif choice == "Hydrograph Producer":
-    st.title("Hydrograph Producer")
-
-    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+    # (The previous code for input and displaying hydrographs remains the same)
 
     if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-        st.write(df)
+        # (The previous code for input and displaying hydrographs remains the same)
 
-        # Convert the "Date" column to a datetime object
-        df["Date"] = pd.to_datetime(df["Date"])
+        # Create an Excel file
+        wb = openpyxl.Workbook()
 
-        sep_day = st.number_input(
-            "Separation day (default: 1)", min_value=1, max_value=31, value=1)
-        sep_month = st.number_input(
-            "Separation month (default: 7)", min_value=1, max_value=12, value=7)
-        spring_volume_period = st.number_input(
-            "Spring volume period (default: 30)", min_value=1, value=30)
-        fall_volume_period = st.number_input(
-            "Fall volume period (default: 10)", min_value=1, value=10)
+        # Sheet 1: Hydrograph images
+        ws1 = wb.active
+        ws1.title = "Hydrograph"
+        img_height = 150
 
-        years = df["Year"].unique()
-        st.subheader("Hydrographs")
+        for idx, year in enumerate(years, start=1):
+            img_path = f"hydrograph_{year}.png"
+            img = Image(img_path)
+            img.width = int(img.width * img_height / img.height)
+            img.height = img_height
+            ws1.column_dimensions[get_column_letter(
+                idx)].width = img.width // 6
+            ws1.row_dimensions[1].height = img.height
+            ws1.add_image(img, f"{get_column_letter(idx)}1")
+
+        # Sheets 2 to 5: Max/Min Spring/Fall
+        max_spring_df = pd.DataFrame(
+            columns=["Year", "Max Flow Spring", "Max Flow Date"])
+        min_spring_df = pd.DataFrame(
+            columns=["Year", "Min Flow Spring", "Min Flow Date"])
+        max_fall_df = pd.DataFrame(
+            columns=["Year", "Max Flow Fall", "Max Flow Date"])
+        min_fall_df = pd.DataFrame(
+            columns=["Year", "Min Flow Fall", "Min Flow Date"])
+        period_df = pd.DataFrame(
+            columns=["Year", "Spring Period", "Fall Period"])
+
         for year in years:
             df_year = df[df["Year"] == year]
             df_year.set_index("Date", inplace=True)
 
-            # Calculate the rolling sum of flow for spring and fall periods
-            df_year["Rolling_Spring"] = df_year.loc[:pd.Timestamp(
-                year, sep_month, sep_day), "Flow"].rolling(window=spring_volume_period).sum()
-            df_year["Rolling_Fall"] = df_year.loc[pd.Timestamp(
-                year, sep_month, sep_day):, "Flow"].rolling(window=fall_volume_period).sum()
+            # (The previous code for calculating rolling sums, max/min values, and periods remains the same)
 
-            # Find the maximum rolling sum periods for spring and fall
-            spring_start_date = df_year["Rolling_Spring"].idxmax(
-            ) - pd.Timedelta(days=spring_volume_period - 1)
-            spring_end_date = df_year["Rolling_Spring"].idxmax()
-            fall_start_date = df_year["Rolling_Fall"].idxmax(
-            ) - pd.Timedelta(days=fall_volume_period - 1)
-            fall_end_date = df_year["Rolling_Fall"].idxmax()
+            max_spring_df = max_spring_df.append(
+                {"Year": year, "Max Flow Spring": spring_max, "Max Flow Date": spring_max_date.strftime('%d-%m')}, ignore_index=True)
+            min_spring_df = min_spring_df.append(
+                {"Year": year, "Min Flow Spring": spring_min, "Min Flow Date": spring_min_date.strftime('%d-%m')}, ignore_index=True)
+            max_fall_df = max_fall_df.append(
+                {"Year": year, "Max Flow Fall": fall_max, "Max Flow Date": fall_max_date.strftime('%d-%m')}, ignore_index=True)
+            min_fall_df = min_fall_df.append(
+                {"Year": year, "Min Flow Fall": fall_min, "Min Flow Date": fall_min_date.strftime('%d-%m')}, ignore_index=True)
+            period_df = period_df.append({"Year": year, "Spring Period": f"{spring_start_date.strftime('%d-%m')} to {spring_end_date.strftime('%d-%m')}",
+                                          "Fall Period": f"{fall_start_date.strftime('%d-%m')} to {fall_end_date.strftime('%d-%m')}"}, ignore_index=True)
 
-            fig, ax = plt.subplots(figsize=(15, 6))
-            ax.plot(df_year.index, df_year["Flow"])
-            ax.axvline(pd.Timestamp(year, sep_month, sep_day),
-                       color="black", linestyle="--", label="Separation Date")
+        for sheet_name, data_df in zip(["Max Spring", "Min Spring", "Max Fall", "Min Fall"], [max_spring_df, min_spring_df, max_fall_df, min_fall_df]):
+            ws = wb.create_sheet(title=sheet_name)
+            for r_idx, row in enumerate(dataframe_to_rows(data_df, index=False, header=True)):
+                for c_idx, value in enumerate(row):
+                    ws.cell(row=r_idx + 1, column=c_idx + 1, value=value)
 
-            # Highlight the spring and fall volume periods in red and green, respectively
-            ax.axvspan(spring_start_date, spring_end_date, alpha=0.3,
-                       color="red", label="Spring Volume Period")
-            ax.axvspan(fall_start_date, fall_end_date, alpha=0.3,
-                       color="green", label="Fall Volume Period")
+        # Sheet 6: Periods
+        ws6 = wb.create_sheet(title="Periods")
+        ws6.cell(row=1, column=1, value="Separation Date")
+        ws6.cell(row=1, column=2, value=f"{sep_month}-{sep_day}")
+        ws6.cell(row=2, column=1, value="Spring Volume Period")
+        ws6.cell(row=2, column=2, value=spring_volume_period)
+        ws6.cell(row=3, column=1, value="Fall Volume Period")
+        ws6.cell(row=3, column=2, value=fall_volume_period)
 
-            # Maximum and minimum values for spring and fall periods
-            spring_max = df_year.loc[:pd.Timestamp(
-                year, sep_month, sep_day), "Flow"].max()
-            spring_min = df_year.loc[:pd.Timestamp(
-                year, sep_month, sep_day), "Flow"].min()
-            fall_max = df_year.loc[pd.Timestamp(
-                year, sep_month, sep_day):, "Flow"].max()
-            fall_min = df_year.loc[pd.Timestamp(
-                year, sep_month, sep_day):, "Flow"].min()
+        for r_idx, row in enumerate(dataframe_to_rows(period_df, index=False, header=True), start=5):
+            for c_idx, value in enumerate(row):
+                ws6.cell(row=r_idx, column=c_idx + 1, value=value)
 
-            # Add red and green dots for maximum and minimum values of spring and fall periods
-            spring_max_date = df_year.loc[:pd.Timestamp(
-                year, sep_month, sep_day), "Flow"].idxmax()
-            spring_min_date = df_year.loc[:pd.Timestamp(
-                year, sep_month, sep_day), "Flow"].idxmin()
-            fall_max_date = df_year.loc[pd.Timestamp(
-                year, sep_month, sep_day):, "Flow"].idxmax()
-            fall_min_date = df_year.loc[pd.Timestamp(
-                year, sep_month, sep_day):, "Flow"].idxmin()
+        # Add download link for the Excel file
+        st.markdown(download_excel_link(
+            wb, 'Hydrograph_Data.xlsx'), unsafe_allow_html=True)
 
-            ax.plot(spring_max_date, spring_max, "ro")
-            ax.plot(spring_min_date, spring_min, "go")
-            ax.plot(fall_max_date, fall_max, "ro")
-            ax.plot(fall_min_date, fall_min, "go")
-
-            ax.set_title(f"Hydrograph for {year}")
-            ax.set_ylabel("Flow")
-            ax.legend(loc="best")
-            ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-
-            st.pyplot(fig)
-
-            st.write(
-                f"Spring Volume Period: {spring_start_date.strftime('%d-%m')} to {spring_end_date.strftime('%d-%m')}")
-            st.write(
-                f"Fall Volume Period: {fall_start_date.strftime('%d-%m')} to {fall_end_date.strftime('%d-%m')}")
-            st.write(
-                f"Max and Min for Spring: {spring_max} ({spring_max_date.strftime('%d-%m')}), {spring_min} ({spring_min_date.strftime('%d-%m')})")
-            st.write(
-                f"Max and Min for Fall: {fall_max} ({fall_max_date.strftime('%d-%m')}), {fall_min} ({fall_min_date.strftime('%d-%m')})")
     else:
         st.info("Please upload a CSV file.")
+
+# # Hydrograph Producer page
+# elif choice == "Hydrograph Producer":
+#     st.title("Hydrograph Producer")
+
+#     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+
+#     if uploaded_file is not None:
+#         df = pd.read_csv(uploaded_file)
+#         st.write(df)
+
+#         # Convert the "Date" column to a datetime object
+#         df["Date"] = pd.to_datetime(df["Date"])
+
+#         sep_day = st.number_input(
+#             "Separation day (default: 1)", min_value=1, max_value=31, value=1)
+#         sep_month = st.number_input(
+#             "Separation month (default: 7)", min_value=1, max_value=12, value=7)
+#         spring_volume_period = st.number_input(
+#             "Spring volume period (default: 30)", min_value=1, value=30)
+#         fall_volume_period = st.number_input(
+#             "Fall volume period (default: 10)", min_value=1, value=10)
+
+#         years = df["Year"].unique()
+#         st.subheader("Hydrographs")
+#         for year in years:
+#             df_year = df[df["Year"] == year]
+#             df_year.set_index("Date", inplace=True)
+
+#             # Calculate the rolling sum of flow for spring and fall periods
+#             df_year["Rolling_Spring"] = df_year.loc[:pd.Timestamp(
+#                 year, sep_month, sep_day), "Flow"].rolling(window=spring_volume_period).sum()
+#             df_year["Rolling_Fall"] = df_year.loc[pd.Timestamp(
+#                 year, sep_month, sep_day):, "Flow"].rolling(window=fall_volume_period).sum()
+
+#             # Find the maximum rolling sum periods for spring and fall
+#             spring_start_date = df_year["Rolling_Spring"].idxmax(
+#             ) - pd.Timedelta(days=spring_volume_period - 1)
+#             spring_end_date = df_year["Rolling_Spring"].idxmax()
+#             fall_start_date = df_year["Rolling_Fall"].idxmax(
+#             ) - pd.Timedelta(days=fall_volume_period - 1)
+#             fall_end_date = df_year["Rolling_Fall"].idxmax()
+
+#             fig, ax = plt.subplots(figsize=(15, 6))
+#             ax.plot(df_year.index, df_year["Flow"])
+#             ax.axvline(pd.Timestamp(year, sep_month, sep_day),
+#                        color="black", linestyle="--", label="Separation Date")
+
+#             # Highlight the spring and fall volume periods in red and green, respectively
+#             ax.axvspan(spring_start_date, spring_end_date, alpha=0.3,
+#                        color="red", label="Spring Volume Period")
+#             ax.axvspan(fall_start_date, fall_end_date, alpha=0.3,
+#                        color="green", label="Fall Volume Period")
+
+#             # Maximum and minimum values for spring and fall periods
+#             spring_max = df_year.loc[:pd.Timestamp(
+#                 year, sep_month, sep_day), "Flow"].max()
+#             spring_min = df_year.loc[:pd.Timestamp(
+#                 year, sep_month, sep_day), "Flow"].min()
+#             fall_max = df_year.loc[pd.Timestamp(
+#                 year, sep_month, sep_day):, "Flow"].max()
+#             fall_min = df_year.loc[pd.Timestamp(
+#                 year, sep_month, sep_day):, "Flow"].min()
+
+#             # Add red and green dots for maximum and minimum values of spring and fall periods
+#             spring_max_date = df_year.loc[:pd.Timestamp(
+#                 year, sep_month, sep_day), "Flow"].idxmax()
+#             spring_min_date = df_year.loc[:pd.Timestamp(
+#                 year, sep_month, sep_day), "Flow"].idxmin()
+#             fall_max_date = df_year.loc[pd.Timestamp(
+#                 year, sep_month, sep_day):, "Flow"].idxmax()
+#             fall_min_date = df_year.loc[pd.Timestamp(
+#                 year, sep_month, sep_day):, "Flow"].idxmin()
+
+#             ax.plot(spring_max_date, spring_max, "ro")
+#             ax.plot(spring_min_date, spring_min, "go")
+#             ax.plot(fall_max_date, fall_max, "ro")
+#             ax.plot(fall_min_date, fall_min, "go")
+
+#             ax.set_title(f"Hydrograph for {year}")
+#             ax.set_ylabel("Flow")
+#             ax.legend(loc="best")
+#             ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+
+#             st.pyplot(fig)
+
+#             st.write(
+#                 f"Spring Volume Period: {spring_start_date.strftime('%d-%m')} to {spring_end_date.strftime('%d-%m')}")
+#             st.write(
+#                 f"Fall Volume Period: {fall_start_date.strftime('%d-%m')} to {fall_end_date.strftime('%d-%m')}")
+#             st.write(
+#                 f"Max and Min for Spring: {spring_max} ({spring_max_date.strftime('%d-%m')}), {spring_min} ({spring_min_date.strftime('%d-%m')})")
+#             st.write(
+#                 f"Max and Min for Fall: {fall_max} ({fall_max_date.strftime('%d-%m')}), {fall_min} ({fall_min_date.strftime('%d-%m')})")
+#     else:
+#         st.info("Please upload a CSV file.")
 
 
 # Hydrograph Producer page
