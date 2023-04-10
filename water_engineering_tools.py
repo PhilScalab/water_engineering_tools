@@ -152,10 +152,16 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         ax.plot(yearly_data.index, yearly_data['Flow'], label="Flow")
 
         # Add max and min points
-        ax.plot(spring_max_date, spring_max_flow, 'ro', label="Max (Spring)")
-        ax.plot(spring_min_date, spring_min_flow, 'go', label="Min (Spring)")
-        ax.plot(fall_max_date, fall_max_flow, 'ro', label="Max (Fall)")
-        ax.plot(fall_min_date, fall_min_flow, 'go', label="Min (Fall)")
+        if spring_max_date is not None and spring_max_flow is not None:
+            ax.plot(spring_max_date, spring_max_flow,
+                    'ro', label="Max (Spring)")
+        if spring_min_date is not None and spring_min_flow is not None:
+            ax.plot(spring_min_date, spring_min_flow,
+                    'go', label="Min (Spring)")
+        if fall_max_date is not None and fall_max_flow is not None:
+            ax.plot(fall_max_date, fall_max_flow, 'ro', label="Max (Fall)")
+        if fall_min_date is not None and fall_min_flow is not None:
+            ax.plot(fall_min_date, fall_min_flow, 'go', label="Min (Fall)")
 
         # Add separation date and spring/fall volume periods
         separation_date = yearly_data.index[0].replace(
