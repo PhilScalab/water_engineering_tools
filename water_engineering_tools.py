@@ -301,7 +301,7 @@ if choice == "Hydrograph Producer":
         years = daily_flow_data["Year"].unique()
         for year in years:
             df_year = daily_flow_data[daily_flow_data["Year"] == year]
-            df_year.set_index("Date", inplace=True)
+            #df_year.set_index("Date", inplace=True)
             # Calculate the rolling sum of flow for spring and fall periods
             df_year["Rolling_Spring"] = df_year.loc[:pd.Timestamp(
                 year, sep_month, sep_day), "Flow"].rolling(window=spring_volume_period).sum()
