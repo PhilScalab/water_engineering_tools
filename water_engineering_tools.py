@@ -113,21 +113,39 @@ elif choice == "Hydrograph Producer":
         df = pd.read_csv(uploaded_file)
         st.write(df)
 
+        # Convert the "Date" column to a datetime object
+        df["Date"] = pd.to_datetime(df["Date"])
+
         years = df["Year"].unique()
         st.subheader("Hydrographs")
         for year in years:
             df_year = df[df["Year"] == year]
-            plt.figure(figsize=(15, 6))
-            plt.plot(df_year["Date"], df_year["Flow"])
-            plt.title(f"Hydrograph for {year}")
-            plt.xlabel("Date")
-            plt.ylabel("Flow")
-            plt.xticks(rotation=45)
-            st.pyplot(plt)
 
-        st.write(f"Max value: {df['Flow'].max()}")
-        st.write(f"Min value: {df['Flow'].min()}")
-        st.write(f"Number of missing values: {df['Flow'].isna().sum()}")
+            # Find the maximum and minimum values and their dates
+            max_value = df_year["Flow"].max()
+            min_value = df_year["Flow"].min()
+            max_date = df_year[df_year["Flow"] == max_value]["Date"].iloc[0]
+            min_date = df_year[df_year["Flow"] == min_value]["Date"].iloc[0]
+
+            fig, ax = plt.subplots(figsize=(15, 6))
+            ax.plot(df_year["Date"], df_year["Flow"])
+            ax.scatter([max_date], [max_value], color="red", label="Maximum")
+            ax.scatter([min_date], [min_value], color="green", label="Minimum")
+            ax.set_title(f"Hydrograph for {year}")
+
+            # Format the x-axis to display the month of the year
+            ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+
+            ax.set_xlabel("Month")
+            ax.set_ylabel("Flow")
+            ax.legend(loc='best')
+            st.pyplot(fig)
+
+            st.write(
+                f"Maximum: {max_value} on {max_date.strftime('%Y-%m-%d')}")
+            st.write(
+                f"Minimum: {min_value} on {min_date.strftime('%Y-%m-%d')}")
+
 
 # Peak Flow Comparison page
 elif choice == "Peak Flow Comparison":
