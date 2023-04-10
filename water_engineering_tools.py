@@ -250,8 +250,8 @@ if choice == "Hydrograph Producer":
         "Upload a CSV file with daily flow data (date, flow):", type="csv")
     if uploaded_file is not None:
         daily_flow_data = pd.read_csv(uploaded_file)
-        daily_flow_data['date'] = pd.to_datetime(daily_flow_data['date'])
-        daily_flow_data.set_index('date', inplace=True)
+        daily_flow_data['Date'] = pd.to_datetime(daily_flow_data['Date'])
+        daily_flow_data.set_index('Date', inplace=True)
 
         sep_day = st.number_input(
             "Separation Day (default: 1):", min_value=1, max_value=31, value=1)
