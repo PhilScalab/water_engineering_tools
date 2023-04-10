@@ -224,12 +224,12 @@ def generate_hydrographs_and_tables(daily_flow_data, sep_day, sep_month, spring_
         for r in dataframe_to_rows(df, index=False, header=True):
             ws.append(r)
 
-    # Delete temporary image files
-    for year in range(min_year, max_year + 1):
-        try:
-            os.remove(f"temp_image_{year}.png")
-        except FileNotFoundError:
-            pass
+    # # Delete temporary image files
+    # for year in range(min_year, max_year + 1):
+    #     try:
+    #         os.remove(f"temp_image_{year}.png")
+    #     except FileNotFoundError:
+    #         pass
     return wb
 
 
