@@ -16,7 +16,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.drawing.image import Image
 import tempfile
 import os
-
+import shutil
 import zipfile
 from datetime import datetime, timedelta
 
@@ -466,6 +466,7 @@ elif choice == "Camera Viewer":
         for root, _, files in os.walk("temp_folder"):
             for file in files:
                 os.remove(os.path.join(root, file))
+        shutil.rmtree("temp_folder")
         os.r
 
 # Frequency Analysis page
