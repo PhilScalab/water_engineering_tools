@@ -471,8 +471,8 @@ elif choice == "Camera Viewer":
                                                         closest_time, title].values[0], "ro", label="Image time")
 
                 # Set the y-axis limits and ticks
-                min_value = math.floor(data[title].min())
-                max_value = math.ceil(data[title].max())
+                min_value = math.floor(np.nanmin(data[title]))
+                max_value = math.ceil(np.nanmax(data[title]))
                 ax[idx].set_ylim(min_value, max_value)
                 ax[idx].set_yticks(np.linspace(min_value, max_value, 5))
 
