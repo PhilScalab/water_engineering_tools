@@ -470,11 +470,10 @@ elif choice == "Camera Viewer":
                     ax[idx].plot(closest_time, data.loc[data["Date_Time"] ==
                                                         closest_time, title].values[0], "ro", label="Image time")
 
-                # Set the y-axis limits and ticks
-                min_value = math.floor(np.nanmin(data[title]))
-                max_value = math.ceil(np.nanmax(data[title]))
-                ax[idx].set_ylim(min_value, max_value)
-                ax[idx].set_yticks(np.linspace(min_value, max_value, 5))
+                    # Adjust y-axis label to 6 increments
+                    min_value, max_value = ax[idx].get_ylim()
+                    ax[idx].yaxis.set_ticks(
+                        np.linspace(min_value, max_value, 6))
 
                 ax[idx].legend()
             # for idx, (df, title, ylabel) in enumerate(zip([hydrograph_df, rain_df, temperature_df], ["Flow", "Rain", "Temperature"], ["Flow", "Rain", "Temperature"])):
