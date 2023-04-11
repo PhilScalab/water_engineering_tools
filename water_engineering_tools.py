@@ -431,6 +431,12 @@ elif choice == "Camera Viewer":
                     temperature_df = pd.read_csv(os.path.join(
                         root, file), parse_dates=[["Date", "Time"]])
 
+        st.write(f"Uploaded file: {uploaded_file}")
+        st.write(f"Number of image files: {len(image_files)}")
+        st.write(f"Hydrograph dataframe: {hydrograph_df.head()}")
+        st.write(f"Rain dataframe: {rain_df.head()}")
+        st.write(f"Temperature dataframe: {temperature_df.head()}")
+
         # Step 4: For each image file, display the image and plot the graphs
         for img_file in image_files:
             # Extract the time from the image filename
