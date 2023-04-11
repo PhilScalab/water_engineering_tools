@@ -454,21 +454,44 @@ elif choice == "Camera Viewer":
                         ) & (df["Date_Time"] <= img_time + timedelta(days=15))
                 data = df[mask]
 
-                # Plot the graph
-                ax[idx].plot(data["Date_Time"], data[title], label=title)
-                ax[idx].set_ylabel(ylabel)
+                if not data.empty:  # Add this condition
+                    # Plot the graph
+                    ax[idx].plot(data["Date_Time"], data[title], label=title)
+                    ax[idx].set_ylabel(ylabel)
 
-                # Add a red dot at the image time
-                closest_time = data.iloc[(
-                    data["Date_Time"] - img_time).abs().idxmin()]["Date_Time"]
-                ax[idx].plot(closest_time, data.loc[data["Date_Time"] ==
-                                                    closest_time, title].values[0], "ro", label="Image time")
+                    # Add a red dot at the image time
+                    closest_time = data.iloc[(
+                        data["Date_Time"] - img_time).abs().idxmin()]["Date_Time"]
+                    ax[idx].plot(closest_time, data.loc[data["Date_Time"] ==
+                                                        closest_time, title].values[0], "ro", label="Image time")
 
-                ax[idx].legend()
+                    ax[idx].legend()
 
             plt.xlabel("Date")
             plt.xticks(rotation=45)
             st.pyplot(fig)
+            fig, ax = plt.subplots(3, 1, figsize=(10, 15), sharex=True)
+            # for idx, (df, title, ylabel) in enumerate(zip([hydrograph_df, rain_df, temperature_df], ["Flow", "Rain", "Temperature"], ["Flow", "Rain", "Temperature"])):
+            #     # Filter the data within 15 days before and after the image time
+            #     mask = (df["Date_Time"] >= img_time - timedelta(days=15)
+            #             ) & (df["Date_Time"] <= img_time + timedelta(days=15))
+            #     data = df[mask]
+
+            #     # Plot the graph
+            #     ax[idx].plot(data["Date_Time"], data[title], label=title)
+            #     ax[idx].set_ylabel(ylabel)
+
+            #     # Add a red dot at the image time
+            #     closest_time = data.iloc[(
+            #         data["Date_Time"] - img_time).abs().idxmin()]["Date_Time"]
+            #     ax[idx].plot(closest_time, data.loc[data["Date_Time"] ==
+            #                                         closest_time, title].values[0], "ro", label="Image time")
+
+            #     ax[idx].legend()
+
+            # plt.xlabel("Date")
+            # plt.xticks(rotation=45)
+            # st.pyplot(fig)
 
         # # Clean up the temporary folder
         # for root, _, files in os.walk("temp_folder"):
