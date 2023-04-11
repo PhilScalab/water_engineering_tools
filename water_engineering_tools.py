@@ -449,9 +449,9 @@ elif choice == "Camera Viewer":
 
             fig, ax = plt.subplots(3, 1, figsize=(10, 15), sharex=True)
             for idx, (df, title, ylabel) in enumerate(zip([hydrograph_df, rain_df, temperature_df], ["Flow", "Rain", "Temperature"], ["Flow", "Rain", "Temperature"])):
-                # Filter the data within 15 days before and after the image time
-                mask = (df["Date_Time"] >= img_time - timedelta(days=15)
-                        ) & (df["Date_Time"] <= img_time + timedelta(days=15))
+                # Filter the data within 3 days before and after the image time
+                mask = (df["Date_Time"] >= img_time - timedelta(days=3)
+                        ) & (df["Date_Time"] <= img_time + timedelta(days=3))
                 data = df[mask]
 
                 # Plot the graph
@@ -468,7 +468,34 @@ elif choice == "Camera Viewer":
                     ax[idx].plot(closest_time, data.loc[data["Date_Time"] ==
                                                         closest_time, title].values[0], "ro", label="Image time")
 
+                # Set the y-axis limits and ticks
+                min_value = data[title].min() // 1 * 1
+                max_value = (data[title].max() // 1 + 1) * 1
+                ax[idx].set_ylim(min_value, max_value)
+                ax[idx].set_yticks(np.linspace(min_value, max_value, 5))
+
                 ax[idx].legend()
+            # for idx, (df, title, ylabel) in enumerate(zip([hydrograph_df, rain_df, temperature_df], ["Flow", "Rain", "Temperature"], ["Flow", "Rain", "Temperature"])):
+            #     # Filter the data within 15 days before and after the image time
+            #     mask = (df["Date_Time"] >= img_time - timedelta(days=15)
+            #             ) & (df["Date_Time"] <= img_time + timedelta(days=15))
+            #     data = df[mask]
+
+            #     # Plot the graph
+            #     ax[idx].plot(data["Date_Time"], data[title], label=title)
+            #     ax[idx].set_ylabel(ylabel)
+
+            #     if not data.empty:  # Add this condition before finding the closest time
+            #         # Add a red dot at the image time
+            #         min_index = (data["Date_Time"] - img_time).abs().idxmin()
+            #         if min_index in data.index:
+            #             closest_time = data.loc[min_index, "Date_Time"]
+            #         else:
+            #             closest_time = img_time
+            #         ax[idx].plot(closest_time, data.loc[data["Date_Time"] ==
+            #                                             closest_time, title].values[0], "ro", label="Image time")
+
+            #     ax[idx].legend()
 
             plt.xlabel("Date")
             plt.xticks(rotation=45)
