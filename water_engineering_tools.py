@@ -19,6 +19,7 @@ import os
 import shutil
 import zipfile
 from datetime import datetime, timedelta
+import math
 
 # Functions for Frequency Analysis
 
@@ -448,6 +449,7 @@ elif choice == "Camera Viewer":
                 img_file, caption=f"Image taken at {img_time.strftime('%Y-%m-%d %H:%M')}")
 
             fig, ax = plt.subplots(3, 1, figsize=(10, 15), sharex=True)
+
             for idx, (df, title, ylabel) in enumerate(zip([hydrograph_df, rain_df, temperature_df], ["Flow", "Rain", "Temperature"], ["Flow", "Rain", "Temperature"])):
                 # Filter the data within 3 days before and after the image time
                 mask = (df["Date_Time"] >= img_time - timedelta(days=3)
@@ -469,8 +471,8 @@ elif choice == "Camera Viewer":
                                                         closest_time, title].values[0], "ro", label="Image time")
 
                 # Set the y-axis limits and ticks
-                min_value = data[title].min() // 1 * 1
-                max_value = (data[title].max() // 1 + 1) * 1
+                min_value = math.floor(data[title].min())
+                max_value = math.ceil(data[title].max())
                 ax[idx].set_ylim(min_value, max_value)
                 ax[idx].set_yticks(np.linspace(min_value, max_value, 5))
 
