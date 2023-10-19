@@ -397,10 +397,6 @@ elif choice == "Peak Flow Comparison":
         st.write(pd.DataFrame({"Year": df1["Year"].unique(), "Ratio": ratio}))
 
         st.write(f"Mean of ratios: {mean_ratio}")
-        
-    if uploaded_file1 is not None and uploaded_file2 is not None:
-        df1 = pd.read_csv(uploaded_file1)
-        df2 = pd.read_csv(uploaded_file2)
     
         max_df1 = df1.groupby("Year")["Flow"].max().reset_index().rename(columns={"Flow": "max_Daily"})
         max_df2 = df2.groupby("Year")["Flow"].max().reset_index().rename(columns={"Flow": "max_Instant"})
