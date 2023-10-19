@@ -377,6 +377,7 @@ if choice == "Hydrograph Producer":
 # Peak Flow Comparison page
 elif choice == "Peak Flow Comparison":
     st.title("Peak Flow Comparison")
+    st.write("Make sure these csv files contain matching years.")
 
     uploaded_file1 = st.file_uploader(
         "Choose the first CSV file (daily flow data)", type="csv")
