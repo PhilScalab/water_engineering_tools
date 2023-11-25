@@ -440,7 +440,7 @@ elif choice == "EC Daily Data Analysis":
                     filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
     
                     st.subheader('Temperature Analysis')
-                    fig, ax = plt.subplots()
+                    fig, ax = plt.subplots(figsize=(8, 4))
                     ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='tomato')
                     ax.plot(filtered_df['Date'], filtered_df['Min Temp (°C)'], label='Min Temp', color='dodgerblue')
                     ax.plot(filtered_df['Date'], filtered_df['Mean Temp (°C)'], label='Mean Temp', color='green')
@@ -453,7 +453,7 @@ elif choice == "EC Daily Data Analysis":
 
                     # Precipitation Analysis
                     st.subheader('Precipitation Analysis')
-                    fig, ax = plt.subplots()
+                    fig, ax = plt.subplots(figsize=(8, 4))
                     ax.bar(filtered_df['Date'], filtered_df['Total Precip (mm)'], color='lightblue')
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Precipitation (mm)')
@@ -463,7 +463,7 @@ elif choice == "EC Daily Data Analysis":
 
                     # Snow Analysis
                     st.subheader('Snow Analysis')
-                    fig, ax = plt.subplots()
+                    fig, ax = plt.subplots(figsize=(8, 4))
                     ax.plot(filtered_df['Date'], filtered_df['Snow on Grnd (cm)'], color='lightgrey')
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Snow on Ground (cm)')
@@ -473,7 +473,7 @@ elif choice == "EC Daily Data Analysis":
 
                     # Wind Gust Analysis
                     st.subheader('Wind Gust Analysis')
-                    fig, ax = plt.subplots()
+                    fig, ax = plt.subplots(figsize=(8, 4))
                     ax.plot(filtered_df['Date'], filtered_df['Spd of Max Gust (km/h)'], color='purple')
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Speed of Max Gust (km/h)')
