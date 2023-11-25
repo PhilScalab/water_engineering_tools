@@ -471,15 +471,16 @@ elif choice == "EC Daily Data Analysis":
                     fig.autofmt_xdate()
                     st.pyplot(fig)
 
-                    # Wind Gust Analysis
-                    st.subheader('Wind Gust Analysis')
-                    fig, ax = plt.subplots(figsize=(8, 4))
-                    ax.plot(filtered_df['Date'], filtered_df['Spd of Max Gust (km/h)'], color='purple')
-                    ax.set_xlabel('Date')
-                    ax.set_ylabel('Speed of Max Gust (km/h)')
-                    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-                    fig.autofmt_xdate()
-                    st.pyplot(fig)
+                    ##For now, not added
+                    # # Wind Gust Analysis
+                    # st.subheader('Wind Gust Analysis')
+                    # fig, ax = plt.subplots(figsize=(8, 4))
+                    # ax.plot(filtered_df['Date'], filtered_df['Spd of Max Gust (km/h)'], color='purple')
+                    # ax.set_xlabel('Date')
+                    # ax.set_ylabel('Speed of Max Gust (km/h)')
+                    # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                    # fig.autofmt_xdate()
+                    # st.pyplot(fig)
 
                     
                     # Temperature analysis
