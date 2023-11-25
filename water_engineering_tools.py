@@ -422,22 +422,18 @@ elif choice == "EC Daily Data Analysis":
     if uploaded_file is not None:
         df = process_file(uploaded_file)
         if df is not None:
-            # Ensure there are no NaT values in the Date column
-            if df['Date'].isnull().any():
-                st.error("There are invalid dates in the file. Please correct them and try again.")
-            else:
-                # Set the default values for the slider
-                min_date = df['Date'].min()
-                max_date = df['Date'].max()
+             # Text input for start date
+            start_date = st.text_input('Enter start date (YYYY-MM-DD):')
+            # Text input for end date
+            end_date = st.text_input('Enter end date (YYYY-MM-DD):')
     
-                # Ensure the min_date and max_date are not NaT
-                if pd.notnull(min_date) and pd.notnull(max_date):
-                    # Date range selector
-                    start_date, end_date = st.slider(
-                        'Select a date range',
-                        value=(min_date, max_date),
-                        format='YYYY-MM-DD'
-                    )
+            # Check if the dates are entered and valid
+            if start_date and end_date:
+                try:
+                    start_date = pd.to_datetime(start_date)
+                    end_date = pd.to_datetime(end_date)
+                    
+                    # Filter the DataFrame based on the input dates
                     filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
     
                     # Temperature analysis
