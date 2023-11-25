@@ -406,19 +406,27 @@ elif choice == "EC Daily Data Analysis":
     # File uploader
     uploaded_file = st.file_uploader("Upload a CSV file with climate data:", type="csv")
 
+    # Only proceed with the rest of the app if a file is uploaded
     if uploaded_file is not None:
         # Read the uploaded file into a DataFrame
-        df = pd.read_csv(uploaded_file, parse_dates=['Date/Time'])
+        df = pd.read_csv(uploaded_file)
     
-        # Check if the DataFrame is not empty and 'Date/Time' column exists
-        if not df.empty and 'Date/Time' in df.columns:
+        # Check if the Year, Month, Day columns are present
+        if {'Year', 'Month', 'Day'}.issubset(df.columns):
+            # Construct the Date column from Year, Month, Day
+            df['Date'] = pd.to_datetime(df[['Year', 'Month', 'Day']])
+            
+            # Set the default values for the slider
+            min_date = df['Date'].min()
+            max_date = df['Date'].max()
+    
             # Date range selector
             start_date, end_date = st.slider(
                 'Select a date range',
-                value=(df['Date/Time'].min(), df['Date/Time'].max()),
+                value=(min_date, max_date),
                 format='YYYY-MM-DD'
             )
-            filtered_df = df[(df['Date/Time'] >= start_date) & (df['Date/Time'] <= end_date)]
+            filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
         
             # Temperature analysis
             st.subheader('Temperature Analysis')
@@ -454,8 +462,8 @@ elif choice == "EC Daily Data Analysis":
             ax.set_xlabel('Date')
             ax.set_ylabel('Speed of Max Gust (km/h)')
             st.pyplot(fig)
-        else:
-            st.error("Invalid or empty DataFrame. Please check the CSV file.")
+         else:
+             st.error("Required columns 'Year', 'Month', and 'Day' are not present in the CSV file.")
 
 # # Camera Viewer page
 
