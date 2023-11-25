@@ -473,7 +473,7 @@ elif choice == "EC Daily Data Analysis":
                     # Overlay a bar chart for monthly average temperatures
                     ax.bar(monthly_avg_temps.index, monthly_avg_temps, width=20, color='pink', label='Monthly Avg Temp', alpha=0.5, align='center')
                     
-                    ax.set_xlabel('Date')
+                    #ax.set_xlabel('Date')
                     ax.set_ylabel('Temperature (°C)')
                     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
                     ax.xaxis.set_major_locator(mdates.AutoDateLocator())  # Automatic tick locator
