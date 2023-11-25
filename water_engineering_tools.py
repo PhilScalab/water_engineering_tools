@@ -244,17 +244,17 @@ def download_link(workbook, filename):
     return f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{file}" download="{filename}">Download Excel file</a>'
     
 # Function to process the uploaded file
-    def process_file(uploaded_file):
-        df = pd.read_csv(uploaded_file)
-    
-        # Check if the Year, Month, Day columns are present
-        if {'Year', 'Month', 'Day'}.issubset(df.columns):
-            # Construct the Date column from Year, Month, Day
-            df['Date'] = pd.to_datetime(df[['Year', 'Month', 'Day']])
-            return df
-        else:
-            st.error("Required columns 'Year', 'Month', and 'Day' are not present in the CSV file.")
-            return None
+def process_file(uploaded_file):
+    df = pd.read_csv(uploaded_file)
+
+    # Check if the Year, Month, Day columns are present
+    if {'Year', 'Month', 'Day'}.issubset(df.columns):
+        # Construct the Date column from Year, Month, Day
+        df['Date'] = pd.to_datetime(df[['Year', 'Month', 'Day']])
+        return df
+    else:
+        st.error("Required columns 'Year', 'Month', and 'Day' are not present in the CSV file.")
+        return None
 
 # Page configuration
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
