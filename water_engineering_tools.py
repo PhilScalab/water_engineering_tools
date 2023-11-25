@@ -440,16 +440,45 @@ elif choice == "EC Daily Data Analysis":
                     filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
     
                     st.subheader('Temperature Analysis')
-                    fig, ax = plt.subplots(figsize=(8, 4))
-                    ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='tomato')
-                    ax.plot(filtered_df['Date'], filtered_df['Min Temp (°C)'], label='Min Temp', color='dodgerblue')
-                    ax.plot(filtered_df['Date'], filtered_df['Mean Temp (°C)'], label='Mean Temp', color='green')
+                     fig, ax = plt.subplots(figsize=(8, 4))
+                    
+                    # Plotting the line plots for temperature
+                    ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='darkred')
+                    ax.plot(filtered_df['Date'], filtered_df['Min Temp (°C)'], label='Min Temp', color='red')
+                    ax.plot(filtered_df['Date'], filtered_df['Mean Temp (°C)'], label='Mean Temp', color='salmon')
+                    
+                    # Calculate the monthly average temperatures
+                    monthly_avg_temps = filtered_df.resample('M', on='Date')['Mean Temp (°C)'].mean()
+                    
+                    # Overlay a bar chart for monthly average temperatures
+                    ax.bar(monthly_avg_temps.index, monthly_avg_temps, width=20, color='pink', label='Monthly Avg Temp', alpha=0.5, align='center')
+                    
+                    # Annotate the bars with values
+                    for idx, value in enumerate(monthly_avg_temps):
+                        ax.annotate(f'{value:.1f}', 
+                                    (monthly_avg_temps.index[idx], value), 
+                                    textcoords="offset points", 
+                                    xytext=(0,10), 
+                                    ha='center')
+                    
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Temperature (°C)')
                     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                    ax.xaxis.set_major_locator(MaxNLocator(nbins=6))  # Limit the number of x-ticks
                     fig.autofmt_xdate()
                     ax.legend()
                     st.pyplot(fig)
+                    
+                    # fig, ax = plt.subplots(figsize=(8, 4))
+                    # ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='tomato')
+                    # ax.plot(filtered_df['Date'], filtered_df['Min Temp (°C)'], label='Min Temp', color='dodgerblue')
+                    # ax.plot(filtered_df['Date'], filtered_df['Mean Temp (°C)'], label='Mean Temp', color='green')
+                    # ax.set_xlabel('Date')
+                    # ax.set_ylabel('Temperature (°C)')
+                    # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                    # fig.autofmt_xdate()
+                    # ax.legend()
+                    # st.pyplot(fig)
 
                     # Precipitation Analysis
                     st.subheader('Precipitation Analysis')
