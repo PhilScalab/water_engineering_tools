@@ -486,7 +486,6 @@ elif choice == "EC Daily Data Analysis":
                     plt.subplots_adjust(left=0.2, bottom=0.2, top=0.8, right=0.8)
                     st.pyplot(fig)
 
-                    /
                     
                     # fig, ax = plt.subplots(figsize=(10, 5))
                     
