@@ -586,7 +586,7 @@ elif choice == "EC Daily Data Analysis":
                     table_vals = [month_names] + [monthly_stats[col].values for col in monthly_stats.columns]
                     table = ax.table(cellText=table_vals, rowLabels=['Month', 'Min Rain', 'Max Rain', 'Total Rain'], loc='top', cellLoc='center')
                     table.auto_set_font_size(False)
-                    table.set_fontsize(8)  # Adjusted font size
+                    table.set_fontsize(6)  # Adjusted font size
                     table.scale(1, 1.5)
 
                     # Plotting the bar chart for precipitation
