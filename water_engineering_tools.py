@@ -242,7 +242,19 @@ def download_link(workbook, filename):
         buffer.seek(0)
         file = base64.b64encode(buffer.read()).decode('utf-8')
     return f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{file}" download="{filename}">Download Excel file</a>'
-
+    
+# Function to process the uploaded file
+    def process_file(uploaded_file):
+        df = pd.read_csv(uploaded_file)
+    
+        # Check if the Year, Month, Day columns are present
+        if {'Year', 'Month', 'Day'}.issubset(df.columns):
+            # Construct the Date column from Year, Month, Day
+            df['Date'] = pd.to_datetime(df[['Year', 'Month', 'Day']])
+            return df
+        else:
+            st.error("Required columns 'Year', 'Month', and 'Day' are not present in the CSV file.")
+            return None
 
 # Page configuration
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
@@ -406,19 +418,6 @@ elif choice == "EC Daily Data Analysis":
     # File uploader
     uploaded_file = st.file_uploader("Upload a CSV file with climate data:", type="csv")
     
-    # Function to process the uploaded file
-    def process_file(uploaded_file):
-        df = pd.read_csv(uploaded_file)
-    
-        # Check if the Year, Month, Day columns are present
-        if {'Year', 'Month', 'Day'}.issubset(df.columns):
-            # Construct the Date column from Year, Month, Day
-            df['Date'] = pd.to_datetime(df[['Year', 'Month', 'Day']])
-            return df
-        else:
-            st.error("Required columns 'Year', 'Month', and 'Day' are not present in the CSV file.")
-            return None
-    
     # Only proceed with the rest of the app if a file is uploaded
     if uploaded_file is not None:
         df = process_file(uploaded_file)
@@ -441,10 +440,43 @@ elif choice == "EC Daily Data Analysis":
                     )
                     filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
     
-                    # Rest of your analysis code...
-                    # Temperature analysis, Precipitation analysis, etc.
+                    # Temperature analysis
+                    st.subheader('Temperature Analysis')
+                    fig, ax = plt.subplots()
+                    ax.plot(filtered_df['Date/Time'], filtered_df['Max Temp (°C)'], label='Max Temp')
+                    ax.plot(filtered_df['Date/Time'], filtered_df['Min Temp (°C)'], label='Min Temp')
+                    ax.plot(filtered_df['Date/Time'], filtered_df['Mean Temp (°C)'], label='Mean Temp')
+                    ax.set_xlabel('Date')
+                    ax.set_ylabel('Temperature (°C)')
+                    ax.legend()
+                    st.pyplot(fig)
+                
+                    # Precipitation analysis
+                    st.subheader('Precipitation Analysis')
+                    fig, ax = plt.subplots()
+                    ax.bar(filtered_df['Date/Time'], filtered_df['Total Precip (mm)'])
+                    ax.set_xlabel('Date')
+                    ax.set_ylabel('Precipitation (mm)')
+                    st.pyplot(fig)
+                
+                    # Snow analysis
+                    st.subheader('Snow Analysis')
+                    fig, ax = plt.subplots()
+                    ax.plot(filtered_df['Date/Time'], filtered_df['Snow on Grnd (cm)'])
+                    ax.set_xlabel('Date')
+                    ax.set_ylabel('Snow on Ground (cm)')
+                    st.pyplot(fig)
+                
+                    # Wind Gust analysis
+                    st.subheader('Wind Gust Analysis')
+                    fig, ax = plt.subplots()
+                    ax.plot(filtered_df['Date/Time'], filtered_df['Spd of Max Gust (km/h)'])
+                    ax.set_xlabel('Date')
+                    ax.set_ylabel('Speed of Max Gust (km/h)')
+                    st.pyplot(fig)
                 else:
                     st.error("The date range is invalid.")
+    
 # # Camera Viewer page
 
 elif choice == "Camera Viewer":
