@@ -440,7 +440,7 @@ elif choice == "EC Daily Data Analysis":
                     filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
     
                     st.subheader('Temperature Analysis')
-                     fig, ax = plt.subplots(figsize=(8, 4))
+                    fig, ax = plt.subplots(figsize=(8, 4))
                     
                     # Plotting the line plots for temperature
                     ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='darkred')
