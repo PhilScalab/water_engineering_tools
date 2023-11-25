@@ -410,48 +410,52 @@ elif choice == "EC Daily Data Analysis":
         # Read the uploaded file into a DataFrame
         df = pd.read_csv(uploaded_file, parse_dates=['Date/Time'])
     
-        # Date range selector
-        start_date, end_date = st.slider(
-            'Select a date range',
-            value=(df['Date/Time'].min(), df['Date/Time'].max()),
-            format='YYYY-MM-DD'
-        )
-        filtered_df = df[(df['Date/Time'] >= start_date) & (df['Date/Time'] <= end_date)]
-    
-        # Temperature analysis
-        st.subheader('Temperature Analysis')
-        fig, ax = plt.subplots()
-        ax.plot(filtered_df['Date/Time'], filtered_df['Max Temp (°C)'], label='Max Temp')
-        ax.plot(filtered_df['Date/Time'], filtered_df['Min Temp (°C)'], label='Min Temp')
-        ax.plot(filtered_df['Date/Time'], filtered_df['Mean Temp (°C)'], label='Mean Temp')
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Temperature (°C)')
-        ax.legend()
-        st.pyplot(fig)
-    
-        # Precipitation analysis
-        st.subheader('Precipitation Analysis')
-        fig, ax = plt.subplots()
-        ax.bar(filtered_df['Date/Time'], filtered_df['Total Precip (mm)'])
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Precipitation (mm)')
-        st.pyplot(fig)
-    
-        # Snow analysis
-        st.subheader('Snow Analysis')
-        fig, ax = plt.subplots()
-        ax.plot(filtered_df['Date/Time'], filtered_df['Snow on Grnd (cm)'])
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Snow on Ground (cm)')
-        st.pyplot(fig)
-    
-        # Wind Gust analysis
-        st.subheader('Wind Gust Analysis')
-        fig, ax = plt.subplots()
-        ax.plot(filtered_df['Date/Time'], filtered_df['Spd of Max Gust (km/h)'])
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Speed of Max Gust (km/h)')
-        st.pyplot(fig)
+        # Check if the DataFrame is not empty and 'Date/Time' column exists
+        if not df.empty and 'Date/Time' in df.columns:
+            # Date range selector
+            start_date, end_date = st.slider(
+                'Select a date range',
+                value=(df['Date/Time'].min(), df['Date/Time'].max()),
+                format='YYYY-MM-DD'
+            )
+            filtered_df = df[(df['Date/Time'] >= start_date) & (df['Date/Time'] <= end_date)]
+        
+            # Temperature analysis
+            st.subheader('Temperature Analysis')
+            fig, ax = plt.subplots()
+            ax.plot(filtered_df['Date/Time'], filtered_df['Max Temp (°C)'], label='Max Temp')
+            ax.plot(filtered_df['Date/Time'], filtered_df['Min Temp (°C)'], label='Min Temp')
+            ax.plot(filtered_df['Date/Time'], filtered_df['Mean Temp (°C)'], label='Mean Temp')
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Temperature (°C)')
+            ax.legend()
+            st.pyplot(fig)
+        
+            # Precipitation analysis
+            st.subheader('Precipitation Analysis')
+            fig, ax = plt.subplots()
+            ax.bar(filtered_df['Date/Time'], filtered_df['Total Precip (mm)'])
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Precipitation (mm)')
+            st.pyplot(fig)
+        
+            # Snow analysis
+            st.subheader('Snow Analysis')
+            fig, ax = plt.subplots()
+            ax.plot(filtered_df['Date/Time'], filtered_df['Snow on Grnd (cm)'])
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Snow on Ground (cm)')
+            st.pyplot(fig)
+        
+            # Wind Gust analysis
+            st.subheader('Wind Gust Analysis')
+            fig, ax = plt.subplots()
+            ax.plot(filtered_df['Date/Time'], filtered_df['Spd of Max Gust (km/h)'])
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Speed of Max Gust (km/h)')
+            st.pyplot(fig)
+        else:
+            st.error("Invalid or empty DataFrame. Please check the CSV file.")
 
 # # Camera Viewer page
 
