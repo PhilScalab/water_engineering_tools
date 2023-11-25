@@ -573,9 +573,10 @@ elif choice == "EC Daily Data Analysis":
                     ax.spines['left'].set_color('black')
                     ax.spines['right'].set_color('black')
 
-                    # Setting major and minor ticks without changing other aspects
-                    ax.tick_params(which='both', direction='in', top=True, right=True)
-                    ax.minorticks_on()
+                    # Set ticks on x-axis and y-axis at the label locations
+                    ax.set_xticks(filtered_df['Date'])  # Set x-ticks at each data point
+                    ax.set_yticks(ax.get_yticks())  # Set y-ticks at each labeled y point
+                    ax.tick_params(axis='x', rotation=90)  # Rotate x-ticks if there are many to avoid overlap
 
                     # Calculate the monthly precipitation stats
                     monthly_precip = filtered_df.resample('M', on='Date')['Total Precip (mm)']
