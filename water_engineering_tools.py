@@ -440,7 +440,7 @@ elif choice == "EC Daily Data Analysis":
                     filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
     
                     st.subheader('Temperature Analysis')
-                    fig, ax = plt.subplots(figsize=(8, 4))
+                    fig, ax = plt.subplots(figsize=(10, 5))
                     
                     # Plotting the line plots for temperature
                     ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='darkred')
@@ -464,7 +464,7 @@ elif choice == "EC Daily Data Analysis":
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Temperature (°C)')
                     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-                    ax.xaxis.set_major_locator(MaxNLocator(nbins=6))  # Limit the number of x-ticks
+                    ax.xaxis.set_major_locator(mdates.AutoDateLocator())  # Automatic tick locator
                     fig.autofmt_xdate()
                     ax.legend()
                     st.pyplot(fig)
