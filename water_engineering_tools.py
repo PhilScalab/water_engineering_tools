@@ -566,6 +566,13 @@ elif choice == "EC Daily Data Analysis":
                     st.subheader('Precipitation Analysis')
                     fig, ax = plt.subplots(figsize=(10, 5))
 
+                    # Remove grid and add black contour
+                    ax.grid(False)
+                    ax.spines['top'].set_color('black')
+                    ax.spines['bottom'].set_color('black')
+                    ax.spines['left'].set_color('black')
+                    ax.spines['right'].set_color('black')
+
                     # Calculate the monthly precipitation stats
                     monthly_precip = filtered_df.resample('M', on='Date')['Total Precip (mm)']
                     monthly_stats = pd.DataFrame({
@@ -579,11 +586,11 @@ elif choice == "EC Daily Data Analysis":
                     table_vals = [month_names] + [monthly_stats[col].values for col in monthly_stats.columns]
                     table = ax.table(cellText=table_vals, rowLabels=['Month', 'Min Rain', 'Max Rain', 'Total Rain'], loc='top', cellLoc='center')
                     table.auto_set_font_size(False)
-                    table.set_fontsize(9)
+                    table.set_fontsize(8)  # Adjusted font size
                     table.scale(1, 1.5)
 
                     # Plotting the bar chart for precipitation
-                    ax.bar(filtered_df['Date'], filtered_df['Total Precip (mm)'], color='lightblue')
+                    ax.bar(filtered_df['Date'], filtered_df['Total Precip (mm)'], color='deepskyblue', width=1.0)  # Adjusted color and width
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Precipitation (mm)')
                     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
@@ -593,6 +600,37 @@ elif choice == "EC Daily Data Analysis":
                     # Adjust layout to make room for the table
                     plt.subplots_adjust(left=0.2, bottom=0.2, top=0.8)
                     st.pyplot(fig)
+
+                    
+                    # fig, ax = plt.subplots(figsize=(10, 5))
+
+                    # # Calculate the monthly precipitation stats
+                    # monthly_precip = filtered_df.resample('M', on='Date')['Total Precip (mm)']
+                    # monthly_stats = pd.DataFrame({
+                    #     'Min Rain (mm)': monthly_precip.min(),
+                    #     'Max Rain (mm)': monthly_precip.max(),
+                    #     'Total Rain (mm)': monthly_precip.sum()
+                    # }).round(1)
+                    # month_names = monthly_stats.index.strftime('%B')
+
+                    # # Creating a table at the top of the graph
+                    # table_vals = [month_names] + [monthly_stats[col].values for col in monthly_stats.columns]
+                    # table = ax.table(cellText=table_vals, rowLabels=['Month', 'Min Rain', 'Max Rain', 'Total Rain'], loc='top', cellLoc='center')
+                    # table.auto_set_font_size(False)
+                    # table.set_fontsize(9)
+                    # table.scale(1, 1.5)
+
+                    # # Plotting the bar chart for precipitation
+                    # ax.bar(filtered_df['Date'], filtered_df['Total Precip (mm)'], color='lightblue')
+                    # ax.set_xlabel('Date')
+                    # ax.set_ylabel('Precipitation (mm)')
+                    # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                    # ax.xaxis.set_major_locator(mdates.AutoDateLocator())  # Automatic tick locator
+                    # fig.autofmt_xdate()
+
+                    # # Adjust layout to make room for the table
+                    # plt.subplots_adjust(left=0.2, bottom=0.2, top=0.8)
+                    # st.pyplot(fig)
                     
                     # fig, ax = plt.subplots(figsize=(8, 4))
                     # ax.bar(filtered_df['Date'], filtered_df['Total Precip (mm)'], color='lightblue')
