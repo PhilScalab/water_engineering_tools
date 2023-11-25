@@ -470,8 +470,8 @@ elif choice == "EC Daily Data Analysis":
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Speed of Max Gust (km/h)')
                     st.pyplot(fig)
-                else:
-                    st.error("The date range is invalid.")
+            else:
+                st.error("The date range is invalid.")
     
 # # Camera Viewer page
 
