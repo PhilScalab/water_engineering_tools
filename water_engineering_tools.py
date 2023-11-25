@@ -449,6 +449,10 @@ elif choice == "EC Daily Data Analysis":
                     ax.spines['left'].set_color('black')
                     ax.spines['right'].set_color('black')
 
+                    # Setting the ticks
+                    ax.tick_params(axis='x', which='both', bottom=True, top=True, labelbottom=True)
+                    ax.tick_params(axis='y', which='both', left=True, right=True, labelleft=True)
+
                     # Plotting the line plots for temperature
                     ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='darkred')
                     ax.plot(filtered_df['Date'], filtered_df['Min Temp (°C)'], label='Min Temp', color='red')
@@ -474,11 +478,15 @@ elif choice == "EC Daily Data Analysis":
                     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
                     ax.xaxis.set_major_locator(mdates.AutoDateLocator())  # Automatic tick locator
                     fig.autofmt_xdate()
-                    ax.legend()
 
-                    # Adjust layout to make room for the table
-                    plt.subplots_adjust(left=0.2, bottom=0.2, top=0.8)
+                    # Adjusting the legend
+                    ax.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize='small', frameon=True)
+
+                    # Adjust layout to make room for the table and legend
+                    plt.subplots_adjust(left=0.2, bottom=0.2, top=0.8, right=0.8)
                     st.pyplot(fig)
+
+                    /
                     
                     # fig, ax = plt.subplots(figsize=(10, 5))
                     
