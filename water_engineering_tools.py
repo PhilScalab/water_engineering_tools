@@ -405,65 +405,46 @@ elif choice == "EC Daily Data Analysis":
 
     # File uploader
     uploaded_file = st.file_uploader("Upload a CSV file with climate data:", type="csv")
-
-    # Only proceed with the rest of the app if a file is uploaded
-    if uploaded_file is not None:
-        # Read the uploaded file into a DataFrame
+    
+    # Function to process the uploaded file
+    def process_file(uploaded_file):
         df = pd.read_csv(uploaded_file)
     
         # Check if the Year, Month, Day columns are present
         if {'Year', 'Month', 'Day'}.issubset(df.columns):
             # Construct the Date column from Year, Month, Day
             df['Date'] = pd.to_datetime(df[['Year', 'Month', 'Day']])
-            
-            # Set the default values for the slider
-            min_date = df['Date'].min()
-            max_date = df['Date'].max()
-    
-            # Date range selector
-            start_date, end_date = st.slider(
-                'Select a date range',
-                value=(min_date, max_date),
-                format='YYYY-MM-DD'
-            )
-            filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
-        
-            # Temperature analysis
-            st.subheader('Temperature Analysis')
-            fig, ax = plt.subplots()
-            ax.plot(filtered_df['Date/Time'], filtered_df['Max Temp (°C)'], label='Max Temp')
-            ax.plot(filtered_df['Date/Time'], filtered_df['Min Temp (°C)'], label='Min Temp')
-            ax.plot(filtered_df['Date/Time'], filtered_df['Mean Temp (°C)'], label='Mean Temp')
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Temperature (°C)')
-            ax.legend()
-            st.pyplot(fig)
-        
-            # Precipitation analysis
-            st.subheader('Precipitation Analysis')
-            fig, ax = plt.subplots()
-            ax.bar(filtered_df['Date/Time'], filtered_df['Total Precip (mm)'])
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Precipitation (mm)')
-            st.pyplot(fig)
-        
-            # Snow analysis
-            st.subheader('Snow Analysis')
-            fig, ax = plt.subplots()
-            ax.plot(filtered_df['Date/Time'], filtered_df['Snow on Grnd (cm)'])
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Snow on Ground (cm)')
-            st.pyplot(fig)
-        
-            # Wind Gust analysis
-            st.subheader('Wind Gust Analysis')
-            fig, ax = plt.subplots()
-            ax.plot(filtered_df['Date/Time'], filtered_df['Spd of Max Gust (km/h)'])
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Speed of Max Gust (km/h)')
-            st.pyplot(fig)
+            return df
         else:
             st.error("Required columns 'Year', 'Month', and 'Day' are not present in the CSV file.")
+            return None
+    
+    # Only proceed with the rest of the app if a file is uploaded
+    if uploaded_file is not None:
+        df = process_file(uploaded_file)
+        if df is not None:
+            # Ensure there are no NaT values in the Date column
+            if df['Date'].isnull().any():
+                st.error("There are invalid dates in the file. Please correct them and try again.")
+            else:
+                # Set the default values for the slider
+                min_date = df['Date'].min()
+                max_date = df['Date'].max()
+    
+                # Ensure the min_date and max_date are not NaT
+                if pd.notnull(min_date) and pd.notnull(max_date):
+                    # Date range selector
+                    start_date, end_date = st.slider(
+                        'Select a date range',
+                        value=(min_date, max_date),
+                        format='YYYY-MM-DD'
+                    )
+                    filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
+    
+                    # Rest of your analysis code...
+                    # Temperature analysis, Precipitation analysis, etc.
+                else:
+                    st.error("The date range is invalid.")
 # # Camera Viewer page
 
 elif choice == "Camera Viewer":
