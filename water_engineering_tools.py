@@ -443,7 +443,7 @@ elif choice == "EC Daily Data Analysis":
                     fig, ax = plt.subplots(figsize=(10, 5))
                     
                     # Remove grid and add black contour
-                    ax.grid(False)
+                    ax.grid(True, linestyle='--')
                     ax.spines['top'].set_color('black')
                     ax.spines['bottom'].set_color('black')
                     ax.spines['left'].set_color('black')
@@ -567,7 +567,7 @@ elif choice == "EC Daily Data Analysis":
                     fig, ax = plt.subplots(figsize=(10, 5))
 
                     # Remove grid and add black contour
-                    ax.grid(True)
+                    ax.grid(True, linestyle='--')
                     ax.spines['top'].set_color('black')
                     ax.spines['bottom'].set_color('black')
                     ax.spines['left'].set_color('black')
