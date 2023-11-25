@@ -91,7 +91,6 @@ def download_link(document, filename):
 
 # Function to create a download link for the generated Excel file
 
-
 def download_excel_link(excel_file, filename):
     with io.BytesIO() as buffer:
         excel_file.save(buffer)
@@ -250,7 +249,7 @@ st.set_page_config(page_title="Water Engineering Tools", layout="wide")
 
 # Main menu
 menu = ["Home", "Hydrograph Producer", "Peak Flow Comparison",
-        "Camera Viewer", "Frequency Analysis"]
+        "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis"]
 choice = st.sidebar.selectbox("Menu", menu)
 
 # Home page
@@ -400,6 +399,59 @@ elif choice == "Peak Flow Comparison":
     
         st.write(f"Mean of ratios: {mean_ratio}")
 
+# # EC Canada Daily Data
+elif choice == "EC Daily Data Analysis":
+    st.title('Climate Data Analysis')
+
+    # File uploader
+    uploaded_file = st.file_uploader("Upload a CSV file with climate data:", type="csv")
+
+    if uploaded_file is not None:
+        # Read the uploaded file into a DataFrame
+        df = pd.read_csv(uploaded_file, parse_dates=['Date/Time'])
+    
+        # Date range selector
+        start_date, end_date = st.slider(
+            'Select a date range',
+            value=(df['Date/Time'].min(), df['Date/Time'].max()),
+            format='YYYY-MM-DD'
+        )
+        filtered_df = df[(df['Date/Time'] >= start_date) & (df['Date/Time'] <= end_date)]
+    
+        # Temperature analysis
+        st.subheader('Temperature Analysis')
+        fig, ax = plt.subplots()
+        ax.plot(filtered_df['Date/Time'], filtered_df['Max Temp (°C)'], label='Max Temp')
+        ax.plot(filtered_df['Date/Time'], filtered_df['Min Temp (°C)'], label='Min Temp')
+        ax.plot(filtered_df['Date/Time'], filtered_df['Mean Temp (°C)'], label='Mean Temp')
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Temperature (°C)')
+        ax.legend()
+        st.pyplot(fig)
+    
+        # Precipitation analysis
+        st.subheader('Precipitation Analysis')
+        fig, ax = plt.subplots()
+        ax.bar(filtered_df['Date/Time'], filtered_df['Total Precip (mm)'])
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Precipitation (mm)')
+        st.pyplot(fig)
+    
+        # Snow analysis
+        st.subheader('Snow Analysis')
+        fig, ax = plt.subplots()
+        ax.plot(filtered_df['Date/Time'], filtered_df['Snow on Grnd (cm)'])
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Snow on Ground (cm)')
+        st.pyplot(fig)
+    
+        # Wind Gust analysis
+        st.subheader('Wind Gust Analysis')
+        fig, ax = plt.subplots()
+        ax.plot(filtered_df['Date/Time'], filtered_df['Spd of Max Gust (km/h)'])
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Speed of Max Gust (km/h)')
+        st.pyplot(fig)
 
 # # Camera Viewer page
 
