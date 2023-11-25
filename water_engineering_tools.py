@@ -413,6 +413,9 @@ elif choice == "Peak Flow Comparison":
 
 # # EC Canada Daily Data
 elif choice == "EC Daily Data Analysis":
+    # Set the style for the plots
+    plt.style.use('seaborn-whitegrid')
+    
     st.title('Climate Data Analysis')
 
     # File uploader
@@ -436,40 +439,83 @@ elif choice == "EC Daily Data Analysis":
                     # Filter the DataFrame based on the input dates
                     filtered_df = df[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
     
-                    # Temperature analysis
                     st.subheader('Temperature Analysis')
                     fig, ax = plt.subplots()
-                    ax.plot(filtered_df['Date/Time'], filtered_df['Max Temp (°C)'], label='Max Temp')
-                    ax.plot(filtered_df['Date/Time'], filtered_df['Min Temp (°C)'], label='Min Temp')
-                    ax.plot(filtered_df['Date/Time'], filtered_df['Mean Temp (°C)'], label='Mean Temp')
+                    ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='tomato')
+                    ax.plot(filtered_df['Date'], filtered_df['Min Temp (°C)'], label='Min Temp', color='dodgerblue')
+                    ax.plot(filtered_df['Date'], filtered_df['Mean Temp (°C)'], label='Mean Temp', color='green')
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Temperature (°C)')
+                    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                    fig.autofmt_xdate()
                     ax.legend()
                     st.pyplot(fig)
-                
-                    # Precipitation analysis
+
+                    # Precipitation Analysis
                     st.subheader('Precipitation Analysis')
                     fig, ax = plt.subplots()
-                    ax.bar(filtered_df['Date/Time'], filtered_df['Total Precip (mm)'])
+                    ax.bar(filtered_df['Date'], filtered_df['Total Precip (mm)'], color='lightblue')
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Precipitation (mm)')
+                    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                    fig.autofmt_xdate()
                     st.pyplot(fig)
-                
-                    # Snow analysis
+
+                    # Snow Analysis
                     st.subheader('Snow Analysis')
                     fig, ax = plt.subplots()
-                    ax.plot(filtered_df['Date/Time'], filtered_df['Snow on Grnd (cm)'])
+                    ax.plot(filtered_df['Date'], filtered_df['Snow on Grnd (cm)'], color='lightgrey')
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Snow on Ground (cm)')
+                    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                    fig.autofmt_xdate()
                     st.pyplot(fig)
-                
-                    # Wind Gust analysis
+
+                    # Wind Gust Analysis
                     st.subheader('Wind Gust Analysis')
                     fig, ax = plt.subplots()
-                    ax.plot(filtered_df['Date/Time'], filtered_df['Spd of Max Gust (km/h)'])
+                    ax.plot(filtered_df['Date'], filtered_df['Spd of Max Gust (km/h)'], color='purple')
                     ax.set_xlabel('Date')
                     ax.set_ylabel('Speed of Max Gust (km/h)')
+                    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                    fig.autofmt_xdate()
                     st.pyplot(fig)
+
+                    
+                    # Temperature analysis
+                    # st.subheader('Temperature Analysis')
+                    # fig, ax = plt.subplots()
+                    # ax.plot(filtered_df['Date/Time'], filtered_df['Max Temp (°C)'], label='Max Temp')
+                    # ax.plot(filtered_df['Date/Time'], filtered_df['Min Temp (°C)'], label='Min Temp')
+                    # ax.plot(filtered_df['Date/Time'], filtered_df['Mean Temp (°C)'], label='Mean Temp')
+                    # ax.set_xlabel('Date')
+                    # ax.set_ylabel('Temperature (°C)')
+                    # ax.legend()
+                    # st.pyplot(fig)
+                
+                    # Precipitation analysis
+                    # st.subheader('Precipitation Analysis')
+                    # fig, ax = plt.subplots()
+                    # ax.bar(filtered_df['Date/Time'], filtered_df['Total Precip (mm)'])
+                    # ax.set_xlabel('Date')
+                    # ax.set_ylabel('Precipitation (mm)')
+                    # st.pyplot(fig)
+                
+                    # Snow analysis
+                    # st.subheader('Snow Analysis')
+                    # fig, ax = plt.subplots()
+                    # ax.plot(filtered_df['Date/Time'], filtered_df['Snow on Grnd (cm)'])
+                    # ax.set_xlabel('Date')
+                    # ax.set_ylabel('Snow on Ground (cm)')
+                    # st.pyplot(fig)
+                
+                    # Wind Gust analysis
+                    # st.subheader('Wind Gust Analysis')
+                    # fig, ax = plt.subplots()
+                    # ax.plot(filtered_df['Date/Time'], filtered_df['Spd of Max Gust (km/h)'])
+                    # ax.set_xlabel('Date')
+                    # ax.set_ylabel('Speed of Max Gust (km/h)')
+                    # st.pyplot(fig)
                 except ValueError as e:
                         st.error("The dates entered are invalid. Please enter valid dates in the format YYYY-MM-DD.")
     
