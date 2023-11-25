@@ -567,16 +567,12 @@ elif choice == "EC Daily Data Analysis":
                     fig, ax = plt.subplots(figsize=(10, 5))
 
                     # Remove grid and add black contour
-                    ax.grid(False)
+                    ax.grid()
                     ax.spines['top'].set_color('black')
                     ax.spines['bottom'].set_color('black')
                     ax.spines['left'].set_color('black')
                     ax.spines['right'].set_color('black')
 
-                    # Set ticks on x-axis and y-axis at the label locations
-                    ax.set_xticks(filtered_df['Date'])  # Set x-ticks at each data point
-                    ax.set_yticks(ax.get_yticks())  # Set y-ticks at each labeled y point
-                    ax.tick_params(axis='x', rotation=90)  # Rotate x-ticks if there are many to avoid overlap
 
                     # Calculate the monthly precipitation stats
                     monthly_precip = filtered_df.resample('M', on='Date')['Total Precip (mm)']
