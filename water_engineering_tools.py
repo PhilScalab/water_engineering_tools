@@ -442,6 +442,18 @@ elif choice == "EC Daily Data Analysis":
                     st.subheader('Temperature Analysis')
                     fig, ax = plt.subplots(figsize=(10, 5))
                     
+                    # Remove grid and add black contour
+                    ax.grid(False)
+                    ax.spines['top'].set_color('black')
+                    ax.spines['bottom'].set_color('black')
+                    ax.spines['left'].set_color('black')
+                    ax.spines['right'].set_color('black')
+
+                    # Plotting the line plots for temperature
+                    ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='darkred')
+                    ax.plot(filtered_df['Date'], filtered_df['Min Temp (°C)'], label='Min Temp', color='red')
+                    ax.plot(filtered_df['Date'], filtered_df['Mean Temp (°C)'], label='Mean Temp', color='salmon')
+                    
                     # Calculate the monthly average temperatures
                     monthly_avg_temps = filtered_df.resample('M', on='Date')['Mean Temp (°C)'].mean()
                     month_names = monthly_avg_temps.index.strftime('%B')
@@ -454,11 +466,6 @@ elif choice == "EC Daily Data Analysis":
                     table.set_fontsize(9)
                     table.scale(1, 1.5)
 
-                    # Plotting the line plots for temperature
-                    ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='darkred')
-                    ax.plot(filtered_df['Date'], filtered_df['Min Temp (°C)'], label='Min Temp', color='red')
-                    ax.plot(filtered_df['Date'], filtered_df['Mean Temp (°C)'], label='Mean Temp', color='salmon')
-                    
                     # Overlay a bar chart for monthly average temperatures
                     ax.bar(monthly_avg_temps.index, monthly_avg_temps, width=20, color='pink', label='Monthly Avg Temp', alpha=0.5, align='center')
                     
@@ -472,6 +479,39 @@ elif choice == "EC Daily Data Analysis":
                     # Adjust layout to make room for the table
                     plt.subplots_adjust(left=0.2, bottom=0.2, top=0.8)
                     st.pyplot(fig)
+                    
+                    # fig, ax = plt.subplots(figsize=(10, 5))
+                    
+                    # # Calculate the monthly average temperatures
+                    # monthly_avg_temps = filtered_df.resample('M', on='Date')['Mean Temp (°C)'].mean()
+                    # month_names = monthly_avg_temps.index.strftime('%B')
+
+                    # # Creating a table at the top of the graph
+                    # col_labels = ['Month', 'Avg Temp (°C)']
+                    # table_vals = list(zip(month_names, monthly_avg_temps.round(1)))
+                    # table = ax.table(cellText=table_vals, colLabels=col_labels, loc='top', cellLoc='center')
+                    # table.auto_set_font_size(False)
+                    # table.set_fontsize(9)
+                    # table.scale(1, 1.5)
+
+                    # # Plotting the line plots for temperature
+                    # ax.plot(filtered_df['Date'], filtered_df['Max Temp (°C)'], label='Max Temp', color='darkred')
+                    # ax.plot(filtered_df['Date'], filtered_df['Min Temp (°C)'], label='Min Temp', color='red')
+                    # ax.plot(filtered_df['Date'], filtered_df['Mean Temp (°C)'], label='Mean Temp', color='salmon')
+                    
+                    # # Overlay a bar chart for monthly average temperatures
+                    # ax.bar(monthly_avg_temps.index, monthly_avg_temps, width=20, color='pink', label='Monthly Avg Temp', alpha=0.5, align='center')
+                    
+                    # ax.set_xlabel('Date')
+                    # ax.set_ylabel('Temperature (°C)')
+                    # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                    # ax.xaxis.set_major_locator(mdates.AutoDateLocator())  # Automatic tick locator
+                    # fig.autofmt_xdate()
+                    # ax.legend()
+
+                    # # Adjust layout to make room for the table
+                    # plt.subplots_adjust(left=0.2, bottom=0.2, top=0.8)
+                    # st.pyplot(fig)
 
     
                     # st.subheader('Temperature Analysis')
