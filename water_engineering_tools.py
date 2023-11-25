@@ -573,13 +573,9 @@ elif choice == "EC Daily Data Analysis":
                     ax.spines['left'].set_color('black')
                     ax.spines['right'].set_color('black')
 
-                    # Setting major and minor ticks
-                    ax.tick_params(which='major', length=7, width=2, colors='black')
-                    ax.tick_params(which='minor', length=4, width=1, colors='gray', linestyle=':')
-                    ax.xaxis.set_major_locator(mdates.MonthLocator())  # Major ticks at the start of each month
-                    ax.xaxis.set_minor_locator(mdates.WeekdayLocator())  # Minor ticks at the start of each week
-                    ax.yaxis.set_major_locator(plt.MaxNLocator())  # Major ticks on y-axis
-                    ax.yaxis.set_minor_locator(plt.MaxNLocator(nbins=10))  # Minor ticks on y-axis
+                    # Setting major and minor ticks without changing other aspects
+                    ax.tick_params(which='both', direction='in', top=True, right=True)
+                    ax.minorticks_on()
 
                     # Calculate the monthly precipitation stats
                     monthly_precip = filtered_df.resample('M', on='Date')['Total Precip (mm)']
