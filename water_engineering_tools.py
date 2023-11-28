@@ -301,8 +301,9 @@ if choice == "Water level CEHQ":
     
         # Calculating annual min, max, and missing values
         #annual_stats = df.agg({'Column2': ['min', 'max'], 'Column3': ['count']})
+        #return description, df, annual_stats
         
-        return description, df, annual_stats
+        return description, df
     
     # Display the results
     if st.button("Fetch Data"):
