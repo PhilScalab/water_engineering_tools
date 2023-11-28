@@ -316,8 +316,12 @@ if choice == "Water level CEHQ":
         annual_stats = pd.DataFrame({
             'None Count': none_counts,
             'Max Value':grouped.max(),
-            'Date of Max Value': df.loc[max_indices, 'Date'],
+            #'Date of Max Value': df.loc[max_indices, 'Date'],
             'Min Value': grouped.min(),
+            #'Date of Min Value':  df.loc[min_indices, 'Date']
+        })
+        date_stats = pd.DataFrame({
+            'Date of Max Value': df.loc[max_indices, 'Date'],
             'Date of Min Value':  df.loc[min_indices, 'Date']
         })
         
