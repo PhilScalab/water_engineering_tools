@@ -316,14 +316,14 @@ if choice == "Water level CEHQ":
         annual_stats = pd.DataFrame({
             'None Count': none_counts,
             'Max Value':grouped.max(),
-            'Date of Max Value': df.loc[grouped.idxmax(), 'Date'],
+            #'Date of Max Value': df.loc[grouped.idxmax(), 'Date'],
             'Min Value': grouped.min(),
-            'Date of Min Value':  df.loc[grouped.idxmin(), 'Date']
+            #'Date of Min Value':  df.loc[grouped.idxmin(), 'Date']
         })
-        # date_stats = pd.DataFrame({
-        #     'Date of Max Value': df.loc[grouped.idxmax(), 'Date'],
-        #     'Date of Min Value':  df.loc[grouped.idxmin(), 'Date']
-        # })
+        date_stats = pd.DataFrame({
+            'Date of Max Value': df.loc[grouped.idxmax(), 'Date'],
+            'Date of Min Value':  df.loc[grouped.idxmin(), 'Date']
+         })
         
         # # Calculating annual statistics
         # none_counts = df.groupby('year')['Water Level'].apply(lambda x: x.isna().sum())  
@@ -352,7 +352,7 @@ if choice == "Water level CEHQ":
         # Calculating annual min, max, and missing values
         #annual_stats = df.agg({'Column2': ['min', 'max'], 'Column3': ['count']})
         
-        return description, df, annual_stats
+        return description, df, annual_stats,date_stats
         
         #return description, df
     
@@ -366,7 +366,7 @@ if choice == "Water level CEHQ":
         st.dataframe(df)
         st.write("Annual Statistics:")
         st.dataframe(annual_stats)
-        #st.dataframe(date_stats)
+        st.dataframe(date_stats)
     
         # # Plotting
         # fig, ax = plt.subplots()
