@@ -312,14 +312,14 @@ if choice == "Water level CEHQ":
         st.write(description)
         st.write("Dataframe:")
         st.dataframe(df)
-        st.write("Annual Statistics:")
-        st.dataframe(annual_stats)
+        #st.write("Annual Statistics:")
+        #st.dataframe(annual_stats)
     
-        # Plotting
-        fig, ax = plt.subplots()
-        ax.plot(df['Column1'], df['Column2'])  # Replace 'Column1' and 'Column2' with actual columns
-        ax.set_title("Annual Min and Max")
-        st.pyplot(fig)
+        # # Plotting
+        # fig, ax = plt.subplots()
+        # ax.plot(df['Column1'], df['Column2'])  # Replace 'Column1' and 'Column2' with actual columns
+        # ax.set_title("Annual Min and Max")
+        # st.pyplot(fig)
     
 # Home page
 if choice == "Home":
