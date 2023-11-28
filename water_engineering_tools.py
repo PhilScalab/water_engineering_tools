@@ -336,27 +336,51 @@ if choice == "NDBC Historical Data Download":
     station_id = st.text_input("Enter Station ID", value="44086")
     start_year = st.number_input("Enter Start Year", min_value=1900, max_value=2023, value=2015)
     end_year = st.number_input("Enter End Year", min_value=1900, max_value=2023, value=2020)
-    
+
     if st.button("Download Data"):
         df_full_history = download_ndbc_full_history(station_id, start_year, end_year)
     
-        # Display the DataFrame in the Streamlit app
         if not df_full_history.empty:
-            st.write(df_full_history)
-            # Select date range for plotting
-            plot_start_date, plot_end_date = st.select_slider(
-                "Select Date Range for Plotting",
-                options=pd.to_datetime(df_full_history['Date']).sort_values(),
-                value=(df_full_history['Date'].min(), df_full_history['Date'].max())
-            )
-            
-            filtered_df = df_full_history[(df_full_history['Date'] >= plot_start_date) & (df_full_history['Date'] <= plot_end_date)]
-            
-            st.write(filtered_df)
-            plot_wave_height(filtered_df, f'Wave Height (WVHT) at Station {station_id} ({plot_start_date.date()} to {plot_end_date.date()})')
-            #plot_wave_height(df_full_history, station_id)
+            # Convert date columns to datetime and create a 'Date' column
+            df_full_history['Date'] = pd.to_datetime(df_full_history[['YY', 'MM', 'DD']].astype(str).agg('-'.join, axis=1))
+    
+            # Select date range for plotting, if 'Date' column is present
+            if 'Date' in df_full_history.columns:
+                plot_start_date, plot_end_date = st.select_slider(
+                    "Select Date Range for Plotting",
+                    options=pd.to_datetime(df_full_history['Date']).sort_values(),
+                    value=(df_full_history['Date'].min(), df_full_history['Date'].max())
+                )
+                
+                filtered_df = df_full_history[(df_full_history['Date'] >= plot_start_date) & (df_full_history['Date'] <= plot_end_date)]
+                
+                st.write(filtered_df)
+                plot_wave_height(filtered_df, f'Wave Height (WVHT) at Station {station_id} ({plot_start_date.date()} to {plot_end_date.date()})')
+            else:
+                st.write("Date column not found in the DataFrame.")
         else:
             st.write("No data available for the specified range.")
+    
+    # if st.button("Download Data"):
+    #     df_full_history = download_ndbc_full_history(station_id, start_year, end_year)
+    
+    #     # Display the DataFrame in the Streamlit app
+    #     if not df_full_history.empty:
+    #         st.write(df_full_history)
+    #         # Select date range for plotting
+    #         plot_start_date, plot_end_date = st.select_slider(
+    #             "Select Date Range for Plotting",
+    #             options=pd.to_datetime(df_full_history['Date']).sort_values(),
+    #             value=(df_full_history['Date'].min(), df_full_history['Date'].max())
+    #         )
+            
+    #         filtered_df = df_full_history[(df_full_history['Date'] >= plot_start_date) & (df_full_history['Date'] <= plot_end_date)]
+            
+    #         st.write(filtered_df)
+    #         plot_wave_height(filtered_df, f'Wave Height (WVHT) at Station {station_id} ({plot_start_date.date()} to {plot_end_date.date()})')
+    #         #plot_wave_height(df_full_history, station_id)
+    #     else:
+    #         st.write("No data available for the specified range.")
             
 #"Water level CEHQ"
 if choice == "Water level CEHQ":
