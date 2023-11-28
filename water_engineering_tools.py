@@ -287,6 +287,29 @@ if choice == "Water level CEHQ":
         # Processing the data
         data = [line.split() for line in lines[22:] if line.strip()]  # Assuming data starts from line 22
         df = pd.DataFrame(data)
+
+        df.columns = ['Station', 'Date', 'Water Level', 'Info']
+
+        # Splitting 'Column2' into 'year', 'month', and 'day'
+        df[['year', 'month', 'day']] = df['Column2'].str.split('/', expand=True)
+        
+        # Convert year, month, and day to integers
+        df['year'] = df['year'].astype(int)
+        df['month'] = df['month'].astype(int)
+        df['day'] = df['day'].astype(int)
+        
+        # Calculating annual statistics
+        none_counts = df.groupby('year')['Water Level'].apply(lambda x: x.isna().sum())  
+        max_values = df.groupby('year')['Water Level'].max()
+        min_values = df.groupby('year')['Water Level'].min()
+        
+        annual_stats = pd.DataFrame({
+            'None Count': none_counts,
+            'Max Value': max_values,
+            'Min Value': min_values
+        })
+
+        
         # if len(df.columns) == 4:
         #     df.columns = ['Column1', 'Column2', 'Column3', 'Column4']  # Replace with actual column names
         # else:
@@ -301,20 +324,21 @@ if choice == "Water level CEHQ":
     
         # Calculating annual min, max, and missing values
         #annual_stats = df.agg({'Column2': ['min', 'max'], 'Column3': ['count']})
-        #return description, df, annual_stats
         
-        return description, df
+        return description, df, annual_stats
+        
+        #return description, df
     
     # Display the results
     if st.button("Fetch Data"):
-        description, df = fetch_and_process_data(url)
-        #description, df, annual_stats = fetch_and_process_data(url)
+        #description, df = fetch_and_process_data(url)
+        description, df, annual_stats = fetch_and_process_data(url)
         st.write("Station Description:")
         st.write(description)
         st.write("Dataframe:")
         st.dataframe(df)
-        #st.write("Annual Statistics:")
-        #st.dataframe(annual_stats)
+        st.write("Annual Statistics:")
+        st.dataframe(annual_stats)
     
         # # Plotting
         # fig, ax = plt.subplots()
