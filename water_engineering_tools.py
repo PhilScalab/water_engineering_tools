@@ -282,10 +282,10 @@ if choice == "Water level CEHQ":
         lines = response.text.split('\n')
     
         # Extracting station description
-        description = lines[:20]
+        description = lines[:21]
         
         # Processing the data
-        data = [line.split() for line in lines[21:] if line.strip()]  # Assuming data starts from line 22
+        data = [line.split() for line in lines[22:] if line.strip()]  # Assuming data starts from line 22
         df = pd.DataFrame(data)
         if len(df.columns) == 5:
             df.columns = ['Column1', 'Column2', 'Column3', 'Column4', 'Column5']  # Replace with actual column names
