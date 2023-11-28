@@ -116,18 +116,33 @@ def download_ndbc_full_history(station_id, start_year, end_year):
     
     return df
     
-def plot_wave_height(df, station_id):
+# def plot_wave_height(df, station_id):
+#     """
+#     Plot the Wave Height (WVHT) from the DataFrame.
+
+#     Parameters:
+#     - df (DataFrame): The DataFrame containing the wave data.
+#     - station_id (str): The ID of the NDBC station.
+#     """
+#     plt.figure(figsize=(10, 6))
+#     plt.plot(df['WVHT'], label='Wave Height (WVHT)')
+#     plt.title(f'Wave Height (WVHT) at Station {station_id}')
+#     plt.xlabel('Record Number')
+#     plt.ylabel('Wave Height (meters)')
+#     plt.legend()
+#     st.pyplot(plt)
+def plot_wave_height(df, title):
     """
     Plot the Wave Height (WVHT) from the DataFrame.
 
     Parameters:
     - df (DataFrame): The DataFrame containing the wave data.
-    - station_id (str): The ID of the NDBC station.
+    - title (str): The title for the plot.
     """
     plt.figure(figsize=(10, 6))
     plt.plot(df['WVHT'], label='Wave Height (WVHT)')
-    plt.title(f'Wave Height (WVHT) at Station {station_id}')
-    plt.xlabel('Record Number')
+    plt.title(title)
+    plt.xlabel('Date')
     plt.ylabel('Wave Height (meters)')
     plt.legend()
     st.pyplot(plt)
@@ -328,7 +343,18 @@ if choice == "NDBC Historical Data Download":
         # Display the DataFrame in the Streamlit app
         if not df_full_history.empty:
             st.write(df_full_history)
-            plot_wave_height(df_full_history, station_id)
+            # Select date range for plotting
+            plot_start_date, plot_end_date = st.select_slider(
+                "Select Date Range for Plotting",
+                options=pd.to_datetime(df_full_history['Date']).sort_values(),
+                value=(df_full_history['Date'].min(), df_full_history['Date'].max())
+            )
+            
+            filtered_df = df_full_history[(df_full_history['Date'] >= plot_start_date) & (df_full_history['Date'] <= plot_end_date)]
+            
+            st.write(filtered_df)
+            plot_wave_height(filtered_df, f'Wave Height (WVHT) at Station {station_id} ({plot_start_date.date()} to {plot_end_date.date()})')
+            #plot_wave_height(df_full_history, station_id)
         else:
             st.write("No data available for the specified range.")
             
