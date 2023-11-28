@@ -291,7 +291,7 @@ if choice == "Water level CEHQ":
         df.columns = ['Station', 'Date', 'Water Level', 'Info']
 
         # Splitting 'Column2' into 'year', 'month', and 'day'
-        df[['year', 'month', 'day']] = df['Column2'].str.split('/', expand=True)
+        df[['year', 'month', 'day']] = df['Date'].str.split('/', expand=True)
         
         # Convert year, month, and day to integers
         df['year'] = df['year'].astype(int)
