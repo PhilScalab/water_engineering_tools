@@ -366,6 +366,38 @@ if choice == "Water level CEHQ":
         st.dataframe(df)
         st.write("Annual Statistics:")
         st.dataframe(annual_stats)
+
+        # Set the style for nicer plots
+        plt.style.use('seaborn-darkgrid')
+        
+        # Creating a figure and axis
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # Width of a bar 
+        width = 0.25       
+        
+        # Setting the positions of the bars
+        ind = annual_stats.index.astype(str)  # Assuming the index of annual_stats is the year
+        ind = range(len(ind))  # Convert to numeric index for plotting
+        
+        # Plotting
+        ax.bar(ind, annual_stats['Max Value'], width, label='Max Value')
+        ax.bar([i + width for i in ind], annual_stats['Min Value'], width, label='Min Value')
+        ax.bar([i + width*2 for i in ind], annual_stats['None Count'], width, label='None Count')
+        
+        # Adding labels and title
+        ax.set_xlabel('Year')
+        ax.set_ylabel('Values')
+        ax.set_title('Annual Water Level Statistics')
+        ax.set_xticks([i + width for i in ind])
+        ax.set_xticklabels(annual_stats.index.astype(str))
+        
+        # Adding a legend
+        ax.legend()
+        
+        # Show the plot
+        plt.show()
+
         st.dataframe(date_stats)
     
         # # Plotting
