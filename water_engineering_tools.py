@@ -307,7 +307,8 @@ if choice == "Water level CEHQ":
     
     # Display the results
     if st.button("Fetch Data"):
-        description, df, annual_stats = fetch_and_process_data(url)
+        description, df = fetch_and_process_data(url)
+        #description, df, annual_stats = fetch_and_process_data(url)
         st.write("Station Description:")
         st.write(description)
         st.write("Dataframe:")
