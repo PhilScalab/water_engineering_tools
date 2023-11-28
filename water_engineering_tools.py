@@ -261,9 +261,54 @@ st.set_page_config(page_title="Water Engineering Tools", layout="wide")
 
 # Main menu
 menu = ["Home", "Hydrograph Producer", "Peak Flow Comparison",
-        "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis"]
+        "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ"]
 choice = st.sidebar.selectbox("Menu", menu)
 
+#"Water level CEHQ"
+if choice == "Water level CEHQ":
+    # Streamlit app layout
+st.title("Hydrometric Station Data Processor")
+
+# User input for station number
+station_number = st.text_input("Enter the Station Number", "030240_N")
+
+# URL construction based on station number
+url = f"https://www.cehq.gouv.qc.ca/depot/historique_donnees/fichier/{station_number}.txt"
+
+# Function to fetch and process data
+def fetch_and_process_data(url):
+    response = requests.get(url)
+    lines = response.text.split('\n')
+
+    # Extracting station description
+    description = lines[:20]
+    
+    # Processing the data
+    data = lines[21:]  # Assuming data starts from line 22
+    df = pd.DataFrame([sub.split() for sub in data])
+    df.columns = ['Column1', 'Column2', 'Column3']  # Replace with actual column names
+
+    # Calculating annual min, max, and missing values
+    annual_stats = df.agg({'Column2': ['min', 'max'], 'Column3': ['count']})
+    
+    return description, df, annual_stats
+
+# Display the results
+if st.button("Fetch Data"):
+    description, df, annual_stats = fetch_and_process_data(url)
+    st.write("Station Description:")
+    st.write(description)
+    st.write("Dataframe:")
+    st.dataframe(df)
+    st.write("Annual Statistics:")
+    st.dataframe(annual_stats)
+
+    # Plotting
+    fig, ax = plt.subplots()
+    ax.plot(df['Column1'], df['Column2'])  # Replace 'Column1' and 'Column2' with actual columns
+    ax.set_title("Annual Min and Max")
+    st.pyplot(fig)
+    
 # Home page
 if choice == "Home":
     st.title("Water Engineering Tools")
