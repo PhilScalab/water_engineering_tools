@@ -315,10 +315,10 @@ if choice == "Water level CEHQ":
         # Combining results
         annual_stats = pd.DataFrame({
             'None Count': none_counts,
-            'Max Value':df.loc[max_indices, 'Date'],
-            'Date of Max Value': max_dates,
-            'Min Value': df.loc[min_indices, 'Date'],
-            'Date of Min Value': min_dates
+            'Max Value':grouped.max(),
+            'Date of Max Value': df.loc[max_indices, 'Date'],
+            'Min Value': grouped.min(),
+            'Date of Min Value':  df.loc[min_indices, 'Date']
         })
         
         # # Calculating annual statistics
