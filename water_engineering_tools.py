@@ -287,8 +287,8 @@ if choice == "Water level CEHQ":
         # Processing the data
         data = [line.split() for line in lines[22:] if line.strip()]  # Assuming data starts from line 22
         df = pd.DataFrame(data)
-        if len(df.columns) == 5:
-            df.columns = ['Column1', 'Column2', 'Column3', 'Column4', 'Column5']  # Replace with actual column names
+        if len(df.columns) == 4:
+            df.columns = ['Column1', 'Column2', 'Column3', 'Column4']  # Replace with actual column names
         else:
             st.error(f"Unexpected number of columns. Found: {len(df.columns)}")
             return None, None, None
