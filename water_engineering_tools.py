@@ -396,7 +396,7 @@ if choice == "Water level CEHQ":
         ax.legend()
         
         # Show the plot
-        plt.show()
+        st.pyplot(fig)
 
         st.dataframe(date_stats)
     
