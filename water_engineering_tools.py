@@ -309,15 +309,15 @@ if choice == "Water level CEHQ":
         none_counts = grouped.apply(lambda x: x.isna().sum())
 
         # Extracting dates for max and min values
-        max_dates = df.loc[max_indices, 'Date']
-        min_dates = df.loc[min_indices, 'Date']
+        #max_dates = df.loc[max_indices, 'Date']
+        #min_dates = df.loc[min_indices, 'Date']
         
         # Combining results
         annual_stats = pd.DataFrame({
             'None Count': none_counts,
-            'Max Value': max_values,
+            'Max Value':df.loc[max_indices, 'Date'],
             'Date of Max Value': max_dates,
-            'Min Value': min_values,
+            'Min Value': df.loc[min_indices, 'Date'],
             'Date of Min Value': min_dates
         })
         
