@@ -115,6 +115,22 @@ def download_ndbc_full_history(station_id, start_year, end_year):
     df = pd.DataFrame(all_data, columns=["YY", "MM", "DD", "hh", "mm", "WDIR", "WSPD", "GST", "WVHT", "DPD", "APD", "MWD", "PRES", "ATMP", "WTMP", "DEWP", "VIS", "TIDE"])
     
     return df
+    
+def plot_wave_height(df, station_id):
+    """
+    Plot the Wave Height (WVHT) from the DataFrame.
+
+    Parameters:
+    - df (DataFrame): The DataFrame containing the wave data.
+    - station_id (str): The ID of the NDBC station.
+    """
+    plt.figure(figsize=(10, 6))
+    plt.plot(df['WVHT'], label='Wave Height (WVHT)')
+    plt.title(f'Wave Height (WVHT) at Station {station_id}')
+    plt.xlabel('Record Number')
+    plt.ylabel('Wave Height (meters)')
+    plt.legend()
+    st.pyplot(plt)
 
 def download_link(document, filename):
     with io.BytesIO() as buffer:
@@ -312,6 +328,7 @@ if choice == "NDBC Historical Data Download":
         # Display the DataFrame in the Streamlit app
         if not df_full_history.empty:
             st.write(df_full_history)
+            plot_wave_height(df_full_history, station_id)
         else:
             st.write("No data available for the specified range.")
             
