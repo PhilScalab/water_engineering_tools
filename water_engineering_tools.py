@@ -276,7 +276,7 @@ if choice == "Water level CEHQ":
     # URL construction based on station number
     url = f"https://www.cehq.gouv.qc.ca/depot/historique_donnees/fichier/{station_number}.txt"
     
-    # Function to fetch and process data
+     # Function to fetch and process data
     def fetch_and_process_data(url):
         response = requests.get(url)
         lines = response.text.split('\n')
@@ -285,9 +285,16 @@ if choice == "Water level CEHQ":
         description = lines[:20]
         
         # Processing the data
-        data = lines[21:]  # Assuming data starts from line 22
-        df = pd.DataFrame([sub.split() for sub in data])
-        df.columns = ['Column1', 'Column2', 'Column3']  # Replace with actual column names
+        data = [line.split() for line in lines[21:] if line.strip()]  # Assuming data starts from line 22
+        df = pd.DataFrame(data)
+        if len(df.columns) == 5:
+            df.columns = ['Column1', 'Column2', 'Column3', 'Column4', 'Column5']  # Replace with actual column names
+        else:
+            st.error(f"Unexpected number of columns. Found: {len(df.columns)}")
+            return None, None, None
+    
+        # Convert data columns to numeric as needed
+        df['Column2'] = pd.to_numeric(df['Column2'], errors='coerce')  # Example for numeric conversion
     
         # Calculating annual min, max, and missing values
         annual_stats = df.agg({'Column2': ['min', 'max'], 'Column3': ['count']})
