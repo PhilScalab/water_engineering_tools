@@ -81,7 +81,40 @@ def generate_word_document(max_flow, aic_bic_params, best_aic_distr, best_bic_di
                         width=docx.shared.Inches(6))
 
     return doc
+    
+def download_ndbc_full_history(station_id, start_year, end_year):
+    """
+    Download full historical wave data for a given station across a range of years.
 
+    Parameters:
+    - station_id (str): The ID of the NDBC station.
+    - start_year (int): The starting year for the data.
+    - end_year (int): The ending year for the data.
+
+    Returns:
+    - DataFrame: A pandas DataFrame containing the downloaded data.
+    """
+
+    all_data = []
+
+    for year in range(start_year, end_year + 1):
+        # Base URL for historical data
+        base_url = f"https://www.ndbc.noaa.gov/view_text_file.php?filename={station_id}h{year}.txt.gz&dir=data/historical/stdmet/"
+
+        # Download the data
+        response = requests.get(base_url)
+        if response.status_code == 200:
+            # Parse the data
+            content = response.content.decode('utf-8')
+            data = [line.split() for line in content.split('\n') if line and not line.startswith('#')]
+            all_data.extend(data)
+        else:
+            st.write(f"Data not found for station {station_id} in year {year}.")
+
+    # Create a DataFrame
+    df = pd.DataFrame(all_data, columns=["YY", "MM", "DD", "hh", "mm", "WDIR", "WSPD", "GST", "WVHT", "DPD", "APD", "MWD", "PRES", "ATMP", "WTMP", "DEWP", "VIS", "TIDE"])
+    
+    return df
 
 def download_link(document, filename):
     with io.BytesIO() as buffer:
@@ -262,9 +295,26 @@ st.set_page_config(page_title="Water Engineering Tools", layout="wide")
 
 # Main menu
 menu = ["Home", "Hydrograph Producer", "Peak Flow Comparison",
-        "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ"]
+        "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ","NDBC Historical Data Download"]
 choice = st.sidebar.selectbox("Menu", menu)
-
+#NDBC historical data"
+if choice == "NDBC Historical Data Download":
+    # Streamlit user interface to input parameters
+    st.title("NDBC Historical Data Downloader")
+    
+    station_id = st.text_input("Enter Station ID", value="44086")
+    start_year = st.number_input("Enter Start Year", min_value=1900, max_value=2023, value=2015)
+    end_year = st.number_input("Enter End Year", min_value=1900, max_value=2023, value=2020)
+    
+    if st.button("Download Data"):
+        df_full_history = download_ndbc_full_history(station_id, start_year, end_year)
+    
+        # Display the DataFrame in the Streamlit app
+        if not df_full_history.empty:
+            st.write(df_full_history)
+        else:
+            st.write("No data available for the specified range.")
+            
 #"Water level CEHQ"
 if choice == "Water level CEHQ":
     # Streamlit app layout
