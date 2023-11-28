@@ -302,11 +302,15 @@ if choice == "Water level CEHQ":
 
         # Group by year and calculate statistics
         grouped = df.groupby('year')['Water Level']
-        max_dates = grouped.idxmax()
-        min_dates = grouped.idxmin()
+        max_indices = grouped.idxmax()
+        min_indices = grouped.idxmin()
         max_values = grouped.max()
         min_values = grouped.min()
         none_counts = grouped.apply(lambda x: x.isna().sum())
+
+        # Extracting dates for max and min values
+        max_dates = df.loc[max_indices, 'Date']
+        min_dates = df.loc[min_indices, 'Date']
         
         # Combining results
         annual_stats = pd.DataFrame({
