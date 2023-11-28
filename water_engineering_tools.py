@@ -299,17 +299,34 @@ if choice == "Water level CEHQ":
         df['year'] = df['year'].astype(int)
         df['month'] = df['month'].astype(int)
         df['day'] = df['day'].astype(int)
+
+        # Group by year and calculate statistics
+        grouped = df.groupby('year')['Water Level']
+        max_dates = grouped.idxmax()
+        min_dates = grouped.idxmin()
+        max_values = grouped.max()
+        min_values = grouped.min()
+        none_counts = grouped.apply(lambda x: x.isna().sum())
         
-        # Calculating annual statistics
-        none_counts = df.groupby('year')['Water Level'].apply(lambda x: x.isna().sum())  
-        max_values = df.groupby('year')['Water Level'].max()
-        min_values = df.groupby('year')['Water Level'].min()
-        
+        # Combining results
         annual_stats = pd.DataFrame({
             'None Count': none_counts,
             'Max Value': max_values,
-            'Min Value': min_values
+            'Date of Max Value': max_dates,
+            'Min Value': min_values,
+            'Date of Min Value': min_dates
         })
+        
+        # # Calculating annual statistics
+        # none_counts = df.groupby('year')['Water Level'].apply(lambda x: x.isna().sum())  
+        # max_values = df.groupby('year')['Water Level'].max()
+        # min_values = df.groupby('year')['Water Level'].min()
+        
+        # annual_stats = pd.DataFrame({
+        #     'None Count': none_counts,
+        #     'Max Value': max_values,
+        #     'Min Value': min_values
+        # })
 
         
         # if len(df.columns) == 4:
