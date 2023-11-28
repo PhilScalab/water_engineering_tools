@@ -287,20 +287,20 @@ if choice == "Water level CEHQ":
         # Processing the data
         data = [line.split() for line in lines[22:] if line.strip()]  # Assuming data starts from line 22
         df = pd.DataFrame(data)
-        if len(df.columns) == 4:
-            df.columns = ['Column1', 'Column2', 'Column3', 'Column4']  # Replace with actual column names
-        else:
-            st.error(f"Unexpected number of columns. Found: {len(df.columns)}")
-            return None, None, None
+        # if len(df.columns) == 4:
+        #     df.columns = ['Column1', 'Column2', 'Column3', 'Column4']  # Replace with actual column names
+        # else:
+        #     st.error(f"Unexpected number of columns. Found: {len(df.columns)}")
+        #     return None, None, None
     
-        # Handling the date column
-        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')  # Convert Date column to datetime
+        # # Handling the date column
+        # df['Date'] = pd.to_datetime(df['Date'], errors='coerce')  # Convert Date column to datetime
         
         ## Convert data columns to numeric as needed
         #df['Column2'] = pd.to_numeric(df['Column2'], errors='coerce')  # Example for numeric conversion
     
         # Calculating annual min, max, and missing values
-        annual_stats = df.agg({'Column2': ['min', 'max'], 'Column3': ['count']})
+        #annual_stats = df.agg({'Column2': ['min', 'max'], 'Column3': ['count']})
         
         return description, df, annual_stats
     
