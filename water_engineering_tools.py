@@ -10,7 +10,7 @@ from io import StringIO
 import base64
 import docx
 import matplotlib.dates as mdates
-from scipy.stats import norm, lognorm, pearson3, gamma, gumbel_r, genextreme
+from scipy.stats import stats, norm, lognorm, pearson3, gamma, gumbel_r, genextreme
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.drawing.image import Image
