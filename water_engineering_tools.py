@@ -320,13 +320,81 @@ def process_file(uploaded_file):
     else:
         st.error("Required columns 'Year', 'Month', and 'Day' are not present in the CSV file.")
         return None
+#Plot normal distribution
+def create_plot_normal(data):
+    mu, std = stats.norm.fit(data)
+
+    def create_plots_normal():
+        fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+
+        # Histogram and theoretical density
+        x = np.linspace(min(data), max(data), 100)
+        axs[0, 0].hist(data, bins=30, density=True, alpha=0.5)
+        axs[0, 0].plot(x, stats.norm.pdf(x, mu, std), 'k', linewidth=2)
+        axs[0, 0].set_title('Histogram and Theoretical Density')
+
+        # Q-Q plot
+        stats.probplot(data, dist="norm", plot=axs[0, 1])
+        axs[0, 1].set_title('Q-Q Plot')
+
+        # CDF
+        sorted_data = np.sort(data)
+        empirical_cdf = np.arange(1, len(sorted_data)+1) / len(sorted_data)
+        axs[1, 0].plot(sorted_data, empirical_cdf, marker='.', linestyle='none')
+        axs[1, 0].plot(x, stats.norm.cdf(x, mu, std), 'k', linewidth=2)
+        axs[1, 0].set_title('Empirical and Theoretical CDF')
+
+        # P-P plot
+        theoretical_cdf = stats.norm.cdf(sorted_data, mu, std)
+        axs[1, 1].plot(empirical_cdf, theoretical_cdf, marker='.', linestyle='none')
+        axs[1, 1].plot([0, 1], [0, 1], 'k--')
+        axs[1, 1].set_title('P-P Plot')
+
+        plt.tight_layout()
+        plt.show()
+# Function to calculate AIC and BIC for a given distribution and data
+def calculate_aic_bic(data, distribution, *params):
+    # Calculate the log likelihood
+    log_likelihood = np.sum(distribution.logpdf(data, *params))
+    
+    # Calculate the number of parameters (including the location and scale parameters)
+    k = len(params) + 2  # adding 2 for loc and scale
+    
+    # Calculate AIC and BIC
+    aic = 2 * k - 2 * log_likelihood
+    bic = k * np.log(len(data)) - 2 * log_likelihood
+    
+    return aic, bic
+
+# Function to fit distribution and calculate AIC and BIC
+def fit_and_calculate_criteria(data, distribution, name, is_log_transformed=False):
+    if is_log_transformed:
+        # For log-transformed distributions, transform the data before fitting
+        data_to_fit = np.log(data)
+    else:
+        data_to_fit = data
+
+    # Fit the distribution to the data
+    params = distribution.fit(data_to_fit)
+
+    # Calculate AIC and BIC
+    aic, bic = calculate_aic_bic(data_to_fit, distribution, *params)
+    
+    return {
+        "Distribution": name,
+        "AIC": aic,
+        "BIC": bic,
+        "Parameters": params
+    }
+
+    create_plots_normal()
 
 # Page configuration
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
 
 # Main menu
 menu = ["Home", "Hydrograph Producer", "Peak Flow Comparison",
-        "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ","NDBC Historical Data Download"]
+        "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ","NDBC Historical Data Download","Frequency Analysis v2"]
 choice = st.sidebar.selectbox("Menu", menu)
 #NDBC historical data"
 if choice == "NDBC Historical Data Download":
@@ -1213,6 +1281,28 @@ elif choice == "Camera Viewer":
 #         shutil.rmtree("temp_folder")
 #         # os.r
 
+# Frequency Analysis page
+elif choice == "Frequency Analysis v2":
+    st.title('Statistical Distribution Analysis')
+uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+if uploaded_file is not None:
+    data = pd.read_csv(uploaded_file, header=None).squeeze()
+else:
+    st.stop()
+if data is not None:
+    criteria = []
+    criteria.append(fit_and_calculate_criteria(data, stats.norm, 'Normal'))
+    criteria.append(fit_and_calculate_criteria(data, stats.lognorm, 'Log-normal'))
+    criteria.append(fit_and_calculate_criteria(data, stats.genextreme, 'Generalized Extreme Value'))
+    criteria.append(fit_and_calculate_criteria(data, stats.gumbel_r, 'Gumbel'))
+    criteria.append(fit_and_calculate_criteria(data, stats.pearson3, 'Pearson Type 3'))
+    st.write(criteria)
+    if st.button('Show Lognormal Plot'):
+        create_plot_normal(data)
+
+
+
+    
 # Frequency Analysis page
 elif choice == "Frequency Analysis":
     st.title('Analyse fréquentielle des débits de crues')
