@@ -1293,10 +1293,10 @@ elif choice == "Frequency Analysis v2":
     if data is not None:
         criteria = []
         criteria.append(fit_and_calculate_criteria(data, stats.norm, 'Normal'))
-        criteria.append(fit_and_calculate_criteria(data, stats.lognorm, 'Log-normal'))
-        criteria.append(fit_and_calculate_criteria(data, stats.genextreme, 'Generalized Extreme Value'))
-        criteria.append(fit_and_calculate_criteria(data, stats.gumbel_r, 'Gumbel'))
-        criteria.append(fit_and_calculate_criteria(data, stats.pearson3, 'Pearson Type 3'))
+        # criteria.append(fit_and_calculate_criteria(data, stats.lognorm, 'Log-normal'))
+        # criteria.append(fit_and_calculate_criteria(data, stats.genextreme, 'Generalized Extreme Value'))
+        # criteria.append(fit_and_calculate_criteria(data, stats.gumbel_r, 'Gumbel'))
+        # criteria.append(fit_and_calculate_criteria(data, stats.pearson3, 'Pearson Type 3'))
         st.write(criteria)
         if st.button('Show Lognormal Plot'):
             create_plot_normal(data)
