@@ -440,7 +440,7 @@ if choice == "EWS-GS : Early warning system - Gauge Prediction":
         "Predicted Flow (m³/s)": [50, 75]
     })
     # Precompute the radius size before defining the PyDeck layer
-    locations['radius'] = locations['Predicted Flow (m³/s)'] * 1000
+    locations['radius'] = locations['Predicted Flow (m³/s)'] * 10
     
     layer = pdk.Layer(
         "ScatterplotLayer",
@@ -456,7 +456,7 @@ if choice == "EWS-GS : Early warning system - Gauge Prediction":
     view_state = pdk.ViewState(
         latitude=46.8139,  # Centered around the latitude of Quebec City
         longitude=-71.2082,  # Centered around the longitude of Quebec City
-        zoom=5,  # Zoom level adjusted to focus on the area of interest
+        zoom=8,  # Zoom level adjusted to focus on the area of interest
         pitch=0,
     )
     
