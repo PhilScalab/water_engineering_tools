@@ -393,9 +393,235 @@ def fit_and_calculate_criteria(data, distribution, name, is_log_transformed=Fals
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
 
 # Main menu
-menu = ["Home", "Hydrograph Producer", "Peak Flow Comparison",
+menu = ["Home", "Hydrograph Producer","Ice Analysis", "Peak Flow Comparison",
         "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ","NDBC Historical Data Download","Frequency Analysis v2"]
 choice = st.sidebar.selectbox("Menu", menu)
+
+#Ice analysis"
+if choice == "Ice Analysis":
+    st.title("Analyse des glaces de la station")
+
+    # File upload
+    uploaded_file = st.file_uploader("Choose a CSV file")
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        # Convertir la colonne 'date' en format datetime
+        df['date'] = pd.to_datetime(df['date'])
+        
+        # Définir l'année synthétique et la date synthétique
+        df['synthetic_year'] = df['date'].dt.year + (df['date'].dt.month >= 10)
+        df['Hiver'] = df['date'].apply(
+            lambda x: pd.Timestamp(year=2000 if x.month >= 10 else 2001, 
+                                   month=x.month if not (x.month == 2 and x.day == 29) else 3,
+                                   day=x.day if not (x.month == 2 and x.day == 29) else 1))
+        
+        # Filtrer pour n'inclure que d'octobre à mai
+        df = df[df['Hiver'].dt.month.isin(list(range(10,13)) + list(range(1,6)))]
+        
+        # Calculer les degrés-jours de gel
+        df['degree_days'] = np.where(df['avg_temperature'] < 0, -df['avg_temperature'], 0)
+        
+        # Calculer les degrés-jours de gel cumulés par année synthétique
+        df = df.sort_values(by=['synthetic_year', 'date'])
+        df['cumulative_dd'] = df.groupby('synthetic_year')['degree_days'].cumsum()
+        
+        # Calculer le nombre de valeurs manquantes par année
+        df['missing_values'] = df['avg_temperature'].isna()
+        summary = df.groupby('synthetic_year').agg({'cumulative_dd': 'max', 'missing_values': 'sum'})
+        
+        # Identifier les années synthétiques avec plus de 10 valeurs manquantes
+        invalid_years = summary[summary['missing_values'] > 10].index
+        
+        # Retirer les années avec plus de 10 valeurs manquantes du résumé et du df
+        summary = summary[summary['missing_values'] <= 10]
+        df = df[~df['synthetic_year'].isin(invalid_years)]
+        
+        # Créer un DataFrame pour la table
+        table_df = summary.reset_index()[['synthetic_year', 'cumulative_dd']]
+        
+        # Tableau style CSS
+        table_df.style.set_properties(**{'background-color': 'lightblue',
+                                         'color': 'black',
+                                         'border-color': 'white'})
+        
+        # Convertir les années synthétiques en étiquettes d'hiver
+        table_df['synthetic_year'] = [f"{year-1}-{year}" for year in table_df['synthetic_year']]
+        
+        # Renommer les colonnes pour correspondre aux descriptions fournies
+        table_df.columns = ['Hiver', 'Degrés-jours de gel cumulés']
+        
+        # Afficher la table
+        #print(table_df)
+        # Display the table
+        st.write("Tableau regroupant les degrés-jours cumulés de chaque hiver pour la station")
+        st.dataframe(table_df)
+        
+        ##############################################
+        # Histogramme des degrées-jours de gel cumulés
+        # Obtenir les étiquettes d'année pour l'histogramme
+        year_labels = [f"{year-1}-{year}" for year in summary.index]
+        
+        fig, ax = plt.subplots(figsize=(10, 6))
+        bars = ax.bar(year_labels, summary['cumulative_dd'], color='steelblue', edgecolor='black')
+        
+        # Calculer moyenne et écart type
+        mean_cddf = summary['cumulative_dd'].mean()
+        std_cddf = summary['cumulative_dd'].std()
+        st.write("Moyenne")
+        st.write(mean_cddf)
+        st.write("Écart-type")
+        st.write(std_cddf)
+        
+        # Identifier le nb de données manquantes par hiver
+        for bar, missing_values in zip(bars, summary['missing_values']):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), str(int(missing_values)), ha='center', va='bottom')
+        
+        # Ligne de la moyenne
+        line_mean = ax.axhline(mean_cddf, color='red', linestyle='--')
+        
+        # lignes de la déviations standard
+        line_std1 = ax.axhline(mean_cddf + std_cddf, color='orange', linestyle='--')
+        line_std2 = ax.axhline(mean_cddf - std_cddf, color='orange', linestyle='--')
+        
+        ax.set_ylabel('Degrés-jours de gel cumulés')
+        ax.set_xlabel('Hiver')
+        ax.set_title('Histogramme des degrés-jours de gel cumulés par hiver')
+        
+        # Légende et layout
+        legend_labels = ['Moyenne', 'Écart-type +', 'Écart-type -']
+        ax.legend([line_mean, line_std1, line_std2], legend_labels, loc='upper right')
+        
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        st.pyplot(fig)
+        
+        
+        ##################################################
+        
+        st.write("Le nombre de données quotidiennes manquantes pour chaque période hivernale est identifiées sur les bandes.")
+        st.write("  ")
+        st.write("  ")
+        st.write("Une comparaison de la température moyenne de l'air hivernale par rapport aux degrés-jours de gel cumulés permet d'observé la période moyenne de l'hiver")
+        
+        # Pour le deuxième graphique
+        fig, ax1 = plt.subplots(figsize=(12, 8))  # Adjust the size as per your requirement
+        
+        # Dessiner la température moyenne
+        df.groupby(df['Hiver'])['avg_temperature'].mean().plot(ax=ax1, color='blue', linewidth=1)
+        ax1.set_ylabel('Température moyenne de l\'air (°C)', color='blue')
+        ax1.yaxis.grid(True, linestyle='--')
+        
+        # Dessiner les degrés-jours de gel cumulés
+        ax2 = ax1.twinx()
+        df.groupby(df['Hiver'])['cumulative_dd'].mean().plot(ax=ax2, color='grey', linewidth=1)
+        
+        ax2.set_ylabel('Degrés-jours de gel cumulés moyens', color='grey')
+        
+        # Formater l'axe x pour n'afficher que le premier jour de chaque mois
+        ax1.xaxis.set_major_locator(mdates.MonthLocator())
+        ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
+        plt.setp(ax1.xaxis.get_majorticklabels(), rotation=45)
+        
+        plt.tight_layout()
+        st.pyplot(fig)
+        
+        ########################################################################################################
+        # Assuming table_df is your DataFrame and 'Degrés-jours de gel cumulés' is the column of interest
+        
+        data = table_df['Degrés-jours de gel cumulés']
+        
+        pd.options.display.float_format = '{:.0f}'.format
+        
+        probabilities = [1/2, 1/5, 1/10, 1/25, 1/50, 1/100]
+        recurrence_intervals = [1/prob for prob in probabilities]
+        results_df = pd.DataFrame()
+        
+        distributions_name = ['norm', 'lognorm', 'gumbel_r', 'genextreme']
+        
+        for dist_name in distributions_name:
+            dist = getattr(stats, dist_name)
+            params = dist.fit(data)
+            
+            # Calculate exceedance probabilities
+            exceedance_probs = 1 - np.array(probabilities)
+            
+            quantiles = [dist.ppf(prob, *params[:-2], loc=params[-2], scale=params[-1]) for prob in exceedance_probs]
+            row_data = {'Distribution': dist_name}
+            for i, interval in enumerate(recurrence_intervals):
+                row_data[f'Récurrence {interval}'] = quantiles[i]
+            results_df = results_df.append(row_data, ignore_index=True)
+        
+        results_df.set_index('Distribution', inplace=True)
+        
+        # Montrer les résultats
+        # Arrondir les valeurs à 0 décimal
+        results_df = results_df.round(0)
+        st.dataframe(results_df)
+        
+        #Fonction permettant de déterminer les critères AIC et BIC. 
+        
+        def calculate_aic_bic(data, dist):
+            # estimate distribution parameters
+            params = dist.fit(data)
+        
+            # calculate maximum likelihood estimate
+            mle = np.sum(dist.logpdf(data, *params))
+        
+            # calculate number of parameters
+            k = len(params)
+        
+            # calculate AIC and BIC
+            aic = 2*k - 2*mle
+            bic = np.log(len(data))*k - 2*mle
+        
+            return aic, bic
+        
+        # Charger les données
+        data = summary['cumulative_dd']
+        
+        # calculer AIC et BIC pour chaque distribution
+        distributions = [norm, lognorm, gumbel_r, genextreme]
+        names = ['Normal', 'Lognormal', 'Gumbel', 'GEV']
+        
+        aic_bic = pd.DataFrame(index=names, columns=['AIC', 'BIC'])
+        
+        for dist, name in zip(distributions, names):
+            aic, bic = calculate_aic_bic(data, dist)
+            aic_bic.loc[name, 'AIC'] = aic
+            aic_bic.loc[name, 'BIC'] = bic
+        
+        # Mettre en ordre en fonction du critère BIC car plus critique du nombre de paramètres de la distribution.
+        aic_bic = aic_bic.sort_values(by='BIC')
+        
+        st.dataframe(aic_bic)
+        
+        
+        # identifier 'data' comme étant la valeur CDDF
+        data = summary['cumulative_dd'] 
+        
+        # DataFrame vide pour entreposer les paramètres AIC et BIC. 
+        params_df = pd.DataFrame(columns=['Distribution', 'Parameters'])
+        
+        for dist_name in distributions_name:
+            dist = getattr(stats, dist_name)
+            params = dist.fit(data)
+            
+            params_df = params_df.append({'Distribution': dist_name, 'Parameters': params}, ignore_index=True)
+        
+        st.dataframe(params_df)
+        
+        fig, axs = plt.subplots(2, 2, figsize=(12, 12))
+        
+        axs = axs.ravel()
+        
+        for ax, dist, name in zip(axs, distributions, names):
+            params = dist.fit(data)
+            _ = stats.probplot(data, dist=dist, sparams=params, plot=ax)
+            ax.set_title(name)
+        
+        plt.tight_layout()
+        st.pyplot(fig)
+
 
 #NDBC historical data"
 if choice == "NDBC Historical Data Download":
