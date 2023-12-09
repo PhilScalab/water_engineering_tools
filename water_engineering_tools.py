@@ -640,9 +640,9 @@ if choice == "Ice Analysis":
             st.dataframe(icethickness_df)
         
             # Calculate Shear Resistance Dimension
-            ShearResistance = 0.0612 * (effective_resistance * slope * (icethickness_df ** 0.5))
+            shear_resistance = 0.0612 * (effective_resistance * slope * (icethickness_df ** 0.5))
             st.write("Shear Resistance Dimension")
-            st.dataframe(ShearResistance)
+            st.dataframe(shear_resistance)
             
             def to_excel(df_dict):
                 output = BytesIO()
