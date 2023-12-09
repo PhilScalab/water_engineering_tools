@@ -397,9 +397,41 @@ def fit_and_calculate_criteria(data, distribution, name, is_log_transformed=Fals
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
 
 # Main menu
-menu = ["Home", "Hydrograph Producer","Ice Analysis", "Peak Flow Comparison",
+menu = ["Home", "Hydrograph Producer","Ice Analysis","EWS-GS : Early warning system - Gauge Prediction", "Peak Flow Comparison",
         "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ","NDBC Historical Data Download","Frequency Analysis v2"]
 choice = st.sidebar.selectbox("Menu", menu)
+
+#"EWS-GS : Early warning system - Gauge Prediction"
+if choice == "EWS-GS : Early warning system - Gauge Prediction":
+    st.title("EWS-GS : Early warning system - Gauge Prediction")
+    rain_today = st.slider("Rain Today (mm)", 0, 100, 25)
+    rain_tomorrow = st.slider("Predicted Rain Tomorrow (mm)", 0, 100, 25)
+    rain_day_after = st.slider("Predicted Rain 2 Days from Now (mm)", 0, 100, 25)
+
+    # Placeholder for map and data visualization
+    st.write("Predicted Flow at Different Locations in St. Charles River:")
+    
+    # Dummy data for river locations and predicted flow
+    locations = ["Location A", "Location B", "Location C", "Location D"]
+    predicted_flow = np.random.rand(4) * 100  # Random data for demonstration
+    
+    # Create a DataFrame for visualization
+    df = pd.DataFrame({
+        "Location": locations,
+        "Predicted Flow (m³/s)": predicted_flow
+    })
+    
+    # Displaying the data in a table
+    st.dataframe(df)
+    
+    # Plotting the data
+    fig, ax = plt.subplots()
+    ax.bar(df["Location"], df["Predicted Flow (m³/s)"])
+    plt.ylabel("Predicted Flow (m³/s)")
+    plt.title("Predicted River Flow at Different Locations")
+    st.pyplot(fig)
+
+
 
 #Ice analysis"
 if choice == "Ice Analysis":
