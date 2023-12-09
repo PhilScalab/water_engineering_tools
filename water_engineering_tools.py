@@ -432,6 +432,31 @@ if choice == "EWS-GS : Early warning system - Gauge Prediction":
     plt.title("Predicted River Flow at Different Locations")
     st.pyplot(fig)
 
+    # Create a PyDeck layer
+    layer = pdk.Layer(
+        "ScatterplotLayer",
+        locations,
+        get_position='[Longitude, Latitude]',
+        get_radius="Predicted Flow (m³/s) * 1000",  # Adjust the multiplication factor as needed
+        get_color=[255, 165, 0, 140],  # RGBA color with adjusted transparency
+        pickable=True,
+        opacity=0.8,
+    )
+    
+    # Set the view state for the map
+    view_state = pdk.ViewState(
+        latitude=locations['Latitude'].mean(),
+        longitude=locations['Longitude'].mean(),
+        zoom=1,
+        pitch=0,
+    )
+    
+    # Create the PyDeck map
+    deck = pdk.Deck(layers=[layer], initial_view_state=view_state)
+    
+    # Display the map in the Streamlit app
+    st.pydeck_chart(deck)
+
     # Example data (normally this would come from your model or database)
     data = pd.DataFrame({
         'lat': np.random.uniform(low=-90.0, high=90.0, size=(100,)),
