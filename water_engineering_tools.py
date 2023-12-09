@@ -643,6 +643,50 @@ if choice == "Ice Analysis":
             ShearResistance = 0.0612 * (effective_resistance * slope * (icethickness_df ** 0.5))
             st.write("Shear Resistance Dimension")
             st.dataframe(ShearResistance)
+            
+            def to_excel(df_dict):
+                output = BytesIO()
+                with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                    for sheet_name, df in df_dict.items():
+                        df.to_excel(writer, sheet_name=sheet_name, index=False)
+            
+                    # Save figures to a temporary buffer
+                    for fig_name, fig in figure_dict.items():
+                        buffer = BytesIO()
+                        fig.savefig(buffer, format='png')
+                        buffer.seek(0)
+                        image_data = buffer.getvalue()
+                        buffer.close()
+            
+                        # Write the image to a sheet
+                        worksheet = writer.sheets[fig_name]
+                        worksheet.insert_image('A1', fig_name, {'image_data': BytesIO(image_data)})
+            
+                    writer.save()
+                processed_data = output.getvalue()
+                return processed_data
+            
+            # Create a dictionary of DataFrames
+            df_dict = {
+                "Input Data": df,
+                "Results Data": results_df,
+                "Ice Thickness": icethickness_df,
+                "Shear Resistance": shear_resistance
+            }
+            
+            # Create a dictionary of Figures
+            figure_dict = {
+                "Figure 1": fig1,
+                "Figure 2": fig2
+            }
+
+# Download button
+if st.button('Download Excel file'):
+    excel_file = to_excel(df_dict)
+    st.download_button(label='📥 Download Excel File',
+                        data=excel_file,
+                        file_name='multi_sheet.xlsx',
+                        mime='application/vnd.ms-excel')
 
 
 
