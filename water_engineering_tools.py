@@ -23,6 +23,8 @@ import zipfile
 from datetime import datetime, timedelta
 import math
 import requests
+from io import BytesIO
+
 
 # Functions for Frequency Analysis
 
