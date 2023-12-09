@@ -623,6 +623,27 @@ if choice == "Ice Analysis":
         
         plt.tight_layout()
         st.pyplot(fig)
+        # Dropdown for Stefan's coefficient
+        stefans_coefficient = st.selectbox('Stefan\'s Coefficient', np.arange(0.7, 3.1, 0.1))
+        
+        # Dropdown for Effective Resistance of the Ice
+        effective_resistance = st.selectbox('Effective Resistance of the Ice', [350, 400, 700, 1100, 1500])
+        
+        # Dropdown for Slope of the Predicted Riprap
+        slope = st.selectbox('Slope of the Predicted Riprap', [0.33, 0.5, 0.66])
+        
+        # Check if result_df is available
+        if 'result_df' in locals():
+            # Calculate Theoretical Ice Thickness
+            result_df['Theoretical Ice Thickness'] = stefans_coefficient * (result_df['cumulative_dd'] ** 0.5)
+            st.write("Theoretical Ice Thickness")
+            st.dataframe(result_df[['Theoretical Ice Thickness']])
+        
+            # Calculate Shear Resistance Dimension
+            result_df['Shear Resistance Dimension'] = 0.0612 * ((effective_resistance * slope * result_df['Theoretical Ice Thickness']) ** 0.5)
+            st.write("Shear Resistance Dimension")
+            st.dataframe(result_df[['Shear Resistance Dimension']])
+
 
 
 #NDBC historical data"
