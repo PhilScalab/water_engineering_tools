@@ -635,12 +635,12 @@ if choice == "Ice Analysis":
         # Check if result_df is available
         if 'results_df' in locals():
             # Calculate Theoretical Ice Thickness
-            icethickness_df = stefans_coefficient * (results_df['cumulative_dd'] ** 0.5)
+            icethickness_df = stefans_coefficient * (results_df ** 0.5)
             st.write("Theoretical Ice Thickness")
             st.dataframe(icethickness_df)
         
             # Calculate Shear Resistance Dimension
-            ShearResistance = 0.0612 * ((effective_resistance * slope * icethickness_df['Theoretical Ice Thickness']) ** 0.5)
+            ShearResistance = 0.0612 * (effective_resistance * slope * (icethickness_df ** 0.5))
             st.write("Shear Resistance Dimension")
             st.dataframe(ShearResistance)
 
