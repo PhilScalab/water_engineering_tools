@@ -432,6 +432,39 @@ if choice == "EWS-GS : Early warning system - Gauge Prediction":
     plt.title("Predicted River Flow at Different Locations")
     st.pyplot(fig)
 
+    # Example data (normally this would come from your model or database)
+    data = pd.DataFrame({
+        'lat': np.random.uniform(low=-90.0, high=90.0, size=(100,)),
+        'lon': np.random.uniform(low=-180.0, high=180.0, size=(100,)),
+        'flow': np.random.rand(100) * 100
+    })
+    
+    # Calculate circle sizes
+    data['size'] = data['flow'] * 10  # Replace with your own logic
+    
+    # Create a pydeck layer
+    layer = pdk.Layer(
+        'ScatterplotLayer',
+        data,
+        get_position='[lon, lat]',
+        get_radius='size',  # Radius is determined by the 'size' column in your dataframe
+        get_color=[255, 0, 0, 160],
+        pickable=True,
+        opacity=0.8,
+    )
+    
+    # Set the viewport location
+    view_state = pdk.ViewState(
+        latitude=data['lat'].mean(),
+        longitude=data['lon'].mean(),
+        zoom=1,
+        pitch=0
+    )
+    
+    # Render the deck.gl map
+    r = pdk.Deck(layers=[layer], initial_view_state=view_state)
+    st.pydeck_chart(r)
+
 
 
 #Ice analysis"
