@@ -463,7 +463,7 @@ if choice == "Ice Analysis":
         # Obtenir les étiquettes d'année pour l'histogramme
         year_labels = [f"{year-1}-{year}" for year in summary.index]
         
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig1, ax = plt.subplots(figsize=(10, 6))
         bars = ax.bar(year_labels, summary['cumulative_dd'], color='steelblue', edgecolor='black')
         
         # Calculer moyenne et écart type
@@ -495,7 +495,7 @@ if choice == "Ice Analysis":
         
         plt.xticks(rotation=45)
         plt.tight_layout()
-        st.pyplot(fig)
+        st.pyplot(fig1)
         
         
         ##################################################
@@ -506,7 +506,7 @@ if choice == "Ice Analysis":
         st.write("Une comparaison de la température moyenne de l'air hivernale par rapport aux degrés-jours de gel cumulés permet d'observé la période moyenne de l'hiver")
         
         # Pour le deuxième graphique
-        fig, ax1 = plt.subplots(figsize=(12, 8))  # Adjust the size as per your requirement
+        fig2, ax1 = plt.subplots(figsize=(12, 8))  # Adjust the size as per your requirement
         
         # Dessiner la température moyenne
         df.groupby(df['Hiver'])['avg_temperature'].mean().plot(ax=ax1, color='blue', linewidth=1)
@@ -525,7 +525,7 @@ if choice == "Ice Analysis":
         plt.setp(ax1.xaxis.get_majorticklabels(), rotation=45)
         
         plt.tight_layout()
-        st.pyplot(fig)
+        st.pyplot(fig2)
         
         ########################################################################################################
         # Assuming table_df is your DataFrame and 'Degrés-jours de gel cumulés' is the column of interest
@@ -612,7 +612,7 @@ if choice == "Ice Analysis":
         
         st.dataframe(params_df)
         
-        fig, axs = plt.subplots(2, 2, figsize=(12, 12))
+        fig3, axs = plt.subplots(2, 2, figsize=(12, 12))
         
         axs = axs.ravel()
         
@@ -622,7 +622,7 @@ if choice == "Ice Analysis":
             ax.set_title(name)
         
         plt.tight_layout()
-        st.pyplot(fig)
+        st.pyplot(fig3)
         # Dropdown for Stefan's coefficient
         stefans_coefficient = st.selectbox('Stefan\'s Coefficient', [0.7, 0.8, 0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0])
         
