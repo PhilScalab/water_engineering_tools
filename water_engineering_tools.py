@@ -633,16 +633,16 @@ if choice == "Ice Analysis":
         slope = st.selectbox('Slope of the Predicted Riprap', [0.33, 0.5, 0.66])
         
         # Check if result_df is available
-        if 'result_df' in locals():
+        if 'results_df' in locals():
             # Calculate Theoretical Ice Thickness
-            result_df['Theoretical Ice Thickness'] = stefans_coefficient * (result_df['cumulative_dd'] ** 0.5)
+            icethickness_df = stefans_coefficient * (results_df['cumulative_dd'] ** 0.5)
             st.write("Theoretical Ice Thickness")
-            st.dataframe(result_df[['Theoretical Ice Thickness']])
+            st.dataframe(icethickness_df)
         
             # Calculate Shear Resistance Dimension
-            result_df['Shear Resistance Dimension'] = 0.0612 * ((effective_resistance * slope * result_df['Theoretical Ice Thickness']) ** 0.5)
+            ShearResistance = 0.0612 * ((effective_resistance * slope * icethickness_df['Theoretical Ice Thickness']) ** 0.5)
             st.write("Shear Resistance Dimension")
-            st.dataframe(result_df[['Shear Resistance Dimension']])
+            st.dataframe(ShearResistance)
 
 
 
