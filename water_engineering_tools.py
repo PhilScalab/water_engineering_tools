@@ -439,14 +439,15 @@ if choice == "EWS-GS : Early warning system - Gauge Prediction":
         "Longitude": [-71.2082, -71.2465],
         "Predicted Flow (m³/s)": [50, 75]
     })
+    # Precompute the radius size before defining the PyDeck layer
+    locations['radius'] = locations['Predicted Flow (m³/s)'] * 1000
     
-    # Create a PyDeck layer
     layer = pdk.Layer(
         "ScatterplotLayer",
         locations,
         get_position='[Longitude, Latitude]',
-        get_radius="Predicted Flow (m³/s) * 1000",  # Scale up the flow for visualization
-        get_color=[200, 30, 0, 160],  # Red color for the circles
+        get_radius='radius',  # Use the precomputed 'radius' column
+        get_color=[200, 30, 0, 160],
         pickable=True,
         opacity=0.8,
     )
