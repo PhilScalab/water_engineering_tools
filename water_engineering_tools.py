@@ -456,7 +456,7 @@ if choice == "EWS-GS : Early warning system - Gauge Prediction":
     view_state = pdk.ViewState(
         latitude=46.8139,  # Centered around the latitude of Quebec City
         longitude=-71.2082,  # Centered around the longitude of Quebec City
-        zoom=1,  # Zoom level adjusted to focus on the area of interest
+        zoom=5,  # Zoom level adjusted to focus on the area of interest
         pitch=0,
     )
     
