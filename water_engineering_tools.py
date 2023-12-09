@@ -680,13 +680,13 @@ if choice == "Ice Analysis":
                 "Figure 2": fig2
             }
 
-# Download button
-if st.button('Download Excel file'):
-    excel_file = to_excel(df_dict)
-    st.download_button(label='📥 Download Excel File',
-                        data=excel_file,
-                        file_name='multi_sheet.xlsx',
-                        mime='application/vnd.ms-excel')
+            # Download button
+            if st.button('Download Excel file'):
+                excel_file = to_excel(df_dict)
+                st.download_button(label='📥 Download Excel File',
+                                    data=excel_file,
+                                    file_name='multi_sheet.xlsx',
+                                    mime='application/vnd.ms-excel')
 
 
 
