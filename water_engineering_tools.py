@@ -645,28 +645,37 @@ if choice == "Ice Analysis":
             shear_resistance = 0.0612 * (effective_resistance * slope * (icethickness_df ** 0.5))
             st.write("Shear Resistance Dimension")
             st.dataframe(shear_resistance)
+
+            # Function to create download link for Excel file
+            def download_excel_link(excel_file, filename):
+                with io.BytesIO() as buffer:
+                    excel_file.save(buffer)
+                    buffer.seek(0)
+                    file = base64.b64encode(buffer.read()).decode('utf-8')
+                return f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{file}" download="{filename}">Download Excel file</a>'
             
-            def to_excel(df_dict):
-                output = BytesIO()
-                with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                    for sheet_name, df in df_dict.items():
-                        df.to_excel(writer, sheet_name=sheet_name, index=False)
+            # Function to create the Excel workbook
+            def create_excel_workbook(df_dict, figure_dict):
+                wb = Workbook()
+                for sheet_name, df in df_dict.items():
+                    ws = wb.create_sheet(title=sheet_name)
+                    for r in pd.DataFrame(df).itertuples(index=False, name=None):
+                        ws.append(r)
             
-                    # Save figures to a temporary buffer
-                    for fig_name, fig in figure_dict.items():
-                        buffer = BytesIO()
-                        fig.savefig(buffer, format='png')
-                        buffer.seek(0)
-                        image_data = buffer.getvalue()
-                        buffer.close()
+                for fig_name, fig in figure_dict.items():
+                    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+                    fig.savefig(temp_file.name, format="png")
+                    img = Image(temp_file.name)
             
-                        # Write the image to a sheet
-                        worksheet = writer.sheets[fig_name]
-                        worksheet.insert_image('A1', fig_name, {'image_data': BytesIO(image_data)})
+                    ws = wb.create_sheet(title=fig_name)
+                    ws.add_image(img, "A1")
             
-                    writer.save()
-                processed_data = output.getvalue()
-                return processed_data
+                    temp_file.close()
+            
+                return wb
+            
+            # Assuming df, results_df, icethickness_df, shear_resistance are your DataFrames
+            # Assuming fig1, fig2 are your matplotlib figures
             
             # Create a dictionary of DataFrames
             df_dict = {
@@ -681,14 +690,57 @@ if choice == "Ice Analysis":
                 "Figure 1": fig1,
                 "Figure 2": fig2
             }
+            
+            # Streamlit interface
+            st.title("Download Excel with Data and Plots")
+            if st.button('Generate and Download Excel'):
+                wb = create_excel_workbook(df_dict, figure_dict)
+                download_link = download_excel_link(wb, "data_and_plots.xlsx")
+                st.markdown(download_link, unsafe_allow_html=True)
+            
+#            def to_excel(df_dict):
+#                output = BytesIO()
+#                with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+#                    for sheet_name, df in df_dict.items():
+#                        df.to_excel(writer, sheet_name=sheet_name, index=False)
+#            
+#                    # Save figures to a temporary buffer
+#                    for fig_name, fig in figure_dict.items():
+#                        buffer = BytesIO()
+#                        fig.savefig(buffer, format='png')
+#                        buffer.seek(0)
+#                        image_data = buffer.getvalue()
+#                        buffer.close()
+#            
+#                        # Write the image to a sheet
+#                        worksheet = writer.sheets[fig_name]
+#                        worksheet.insert_image('A1', fig_name, {'image_data': BytesIO(image_data)})
+#            
+#                    writer.save()
+#                processed_data = output.getvalue()
+#                return processed_data
+#            
+#            # Create a dictionary of DataFrames
+#            df_dict = {
+#                "Input Data": df,
+#                "Results Data": results_df,
+#                "Ice Thickness": icethickness_df,
+#                "Shear Resistance": shear_resistance
+#            }
+#            
+#            # Create a dictionary of Figures
+#            figure_dict = {
+#                "Figure 1": fig1,
+#                "Figure 2": fig2
+#            }
 
             # Download button
-            if st.button('Download Excel file'):
-                excel_file = to_excel(df_dict)
-                st.download_button(label='📥 Download Excel File',
-                                    data=excel_file,
-                                    file_name='multi_sheet.xlsx',
-                                    mime='application/vnd.ms-excel')
+#            if st.button('Download Excel file'):
+#                excel_file = to_excel(df_dict)
+#                st.download_button(label='📥 Download Excel File',
+#                                    data=excel_file,
+#                                    file_name='multi_sheet.xlsx',
+#                                    mime='application/vnd.ms-excel')
 
 
 
