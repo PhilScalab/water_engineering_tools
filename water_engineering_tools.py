@@ -704,12 +704,12 @@ if choice == "Analyse de la glace - Fr":
         if 'results_df' in locals():
             # Calculate Theoretical Ice Thickness
             icethickness_df = stefans_coefficient * (results_df ** 0.5)
-            st.write("Theoretical Ice Thickness")
+            st.write("Theoretical Ice Thickness (cm)")
             st.dataframe(icethickness_df)
         
             # Calculate Shear Resistance Dimension
             shear_resistance = (0.0612 * (effective_resistance * slope * (icethickness_df ** 0.5)))/100
-            st.write("Shear Resistance Dimension")
+            st.write("Shear Resistance Dimension (m)")
             st.dataframe(shear_resistance)
 
             # Function to create download link for Excel file
@@ -1038,12 +1038,12 @@ if choice == "Ice Analysis - En":
         if 'results_df' in locals():
             # Calculate Theoretical Ice Thickness
             icethickness_df = stefans_coefficient * (results_df ** 0.5)
-            st.write("Theoretical Ice Thickness")
+            st.write("Theoretical Ice Thickness (cm)")
             st.dataframe(icethickness_df)
         
             # Calculate Shear Resistance Dimension
             shear_resistance = (0.0612 * (effective_resistance * slope * (icethickness_df ** 0.5)))/100
-            st.write("Shear Resistance Dimension")
+            st.write("Shear Resistance Riprap Dimension (m)")
             st.dataframe(shear_resistance)
 
             # Function to create download link for Excel file
