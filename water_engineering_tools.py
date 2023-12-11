@@ -398,7 +398,7 @@ def fit_and_calculate_criteria(data, distribution, name, is_log_transformed=Fals
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
 
 # Main menu
-menu = ["Home", "Hydrograph Producer","Ice Analysis","EWS-GS : Early warning system - Gauge Prediction", "Peak Flow Comparison",
+menu = ["Home", "Hydrograph Producer","Ice Analysis - En","EWS-GS : Early warning system - Gauge Prediction","Analyse de la glace - Fr", "Peak Flow Comparison",
         "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ","NDBC Historical Data Download","Frequency Analysis v2"]
 choice = st.sidebar.selectbox("Menu", menu)
 
@@ -468,7 +468,7 @@ if choice == "EWS-GS : Early warning system - Gauge Prediction":
 
 
 #Ice analysis"
-if choice == "Ice Analysis":
+if choice == "Analyse de la glace - Fr":
     st.title("Analyse des glaces de la station")
 
     # File upload
@@ -807,6 +807,297 @@ if choice == "Ice Analysis":
 #                                    data=excel_file,
 #                                    file_name='multi_sheet.xlsx',
 #                                    mime='application/vnd.ms-excel')
+
+# Ice analysis
+if choice == "Ice Analysis - En":
+    st.title("Ice Analysis of the Station")
+
+    # File upload
+    uploaded_file = st.file_uploader("Choose a CSV file")
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        # Convert the 'date' column to datetime format
+        df['date'] = pd.to_datetime(df['date'])
+        
+        # Define the synthetic year and synthetic date
+        df['synthetic_year'] = df['date'].dt.year + (df['date'].dt.month >= 10)
+        df['Winter'] = df['date'].apply(
+            lambda x: pd.Timestamp(year=2000 if x.month >= 10 else 2001, 
+                                   month=x.month if not (x.month == 2 and x.day == 29) else 3,
+                                   day=x.day if not (x.month == 2 and x.day == 29) else 1))
+        
+        # Filter to include only from October to May
+        df = df[df['Winter'].dt.month.isin(list(range(10,13)) + list(range(1,6)))]
+        
+        # Calculate freeze degree days
+        df['degree_days'] = np.where(df['avg_temperature'] < 0, -df['avg_temperature'], 0)
+        
+        # Calculate cumulative freeze degree days by synthetic year
+        df = df.sort_values(by=['synthetic_year', 'date'])
+        df['cumulative_dd'] = df.groupby('synthetic_year')['degree_days'].cumsum()
+        
+        # Calculate the number of missing values per year
+        df['missing_values'] = df['avg_temperature'].isna()
+        summary = df.groupby('synthetic_year').agg({'cumulative_dd': 'max', 'missing_values': 'sum'})
+        
+        # Identify synthetic years with more than 10 missing values
+        invalid_years = summary[summary['missing_values'] > 10].index
+        
+        # Remove years with more than 10 missing values from summary and df
+        summary = summary[summary['missing_values'] <= 10]
+        df = df[~df['synthetic_year'].isin(invalid_years)]
+        
+        # Create a DataFrame for the table
+        table_df = summary.reset_index()[['synthetic_year', 'cumulative_dd']]
+        
+        # Table CSS style
+        table_df.style.set_properties(**{'background-color': 'lightblue',
+                                         'color': 'black',
+                                         'border-color': 'white'})
+        
+        # Convert synthetic years to winter labels
+        table_df['synthetic_year'] = [f"{year-1}-{year}" for year in table_df['synthetic_year']]
+        
+        # Rename columns to match provided descriptions
+        table_df.columns = ['Winter', 'Cumulative Freeze Degree Days']
+        
+        # Display the table
+        st.write("Table summarizing the cumulative freeze degree days for each winter at the station")
+        st.dataframe(table_df)
+        
+        # Histogram of cumulative freeze degree days
+        # Get year labels for the histogram
+        year_labels = [f"{year-1}-{year}" for year in summary.index]
+        
+        fig1, ax = plt.subplots(figsize=(10, 6))
+        bars = ax.bar(year_labels, summary['cumulative_dd'], color='steelblue', edgecolor='black')
+        
+        # Calculate average and standard deviation
+        mean_cddf = summary['cumulative_dd'].mean()
+        std_cddf = summary['cumulative_dd'].std()
+        st.write("Average")
+        st.write(mean_cddf)
+        st.write("Standard Deviation")
+        st.write(std_cddf)
+        
+        # Indicate the number of missing values per winter
+        for bar, missing_values in zip(bars, summary['missing_values']):
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), str(int(missing_values)), ha='center', va='bottom')
+        
+        # Average line
+        line_mean = ax.axhline(mean_cddf, color='red', linestyle='--')
+        
+        # Standard deviation lines
+        line_std1 = ax.axhline(mean_cddf + std_cddf, color='orange', linestyle='--')
+        line_std2 = ax.axhline(mean_cddf - std_cddf, color='orange', linestyle='--')
+        
+        ax.set_ylabel('Cumulative Freeze Degree Days')
+        ax.set_xlabel('Winter')
+        ax.set_title('Histogram of Cumulative Freeze Degree Days by Winter')
+        
+        # Legend and layout
+        legend_labels = ['Average', 'Standard Deviation +', 'Standard Deviation -']
+        ax.legend([line_mean, line_std1, line_std2], legend_labels, loc='upper right')
+        
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        st.pyplot(fig1)
+        
+                st.write("The number of daily missing data for each winter period is identified on the bars.")
+        st.write(" ")
+        st.write(" ")
+        st.write("A comparison of the average winter air temperature against the cumulative freeze degree days allows observing the average winter period")
+        
+        # For the second graph
+        fig2, ax1 = plt.subplots(figsize=(12, 8))  # Adjust the size as per your requirement
+        
+        # Plot the average temperature
+        df.groupby(df['Winter'])['avg_temperature'].mean().plot(ax=ax1, color='blue', linewidth=1)
+        ax1.set_ylabel('Average Air Temperature (°C)', color='blue')
+        ax1.yaxis.grid(True, linestyle='--')
+        
+        # Plot cumulative freeze degree days
+        ax2 = ax1.twinx()
+        df.groupby(df['Winter'])['cumulative_dd'].mean().plot(ax=ax2, color='grey', linewidth=1)
+        
+        ax2.set_ylabel('Average Cumulative Freeze Degree Days', color='grey')
+        
+        # Format the x-axis to display only the first day of each month
+        ax1.xaxis.set_major_locator(mdates.MonthLocator())
+        ax1.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
+        plt.setp(ax1.xaxis.get_majorticklabels(), rotation=45)
+        
+        plt.tight_layout()
+        st.pyplot(fig2)
+        
+        ########################################################################################################
+        # Assuming table_df is your DataFrame and 'Cumulative Freeze Degree Days' is the column of interest
+        
+        data = table_df['Cumulative Freeze Degree Days']
+        
+        pd.options.display.float_format = '{:.0f}'.format
+        
+        probabilities = [1/2, 1/5, 1/10, 1/25, 1/50, 1/100]
+        recurrence_intervals = [1/prob for prob in probabilities]
+        results_df = pd.DataFrame()
+        
+        distributions_name = ['norm', 'lognorm', 'gumbel_r', 'genextreme']
+        
+        for dist_name in distributions_name:
+            dist = getattr(stats, dist_name)
+            params = dist.fit(data)
+            
+            # Calculate exceedance probabilities
+            exceedance_probs = 1 - np.array(probabilities)
+            
+            quantiles = [dist.ppf(prob, *params[:-2], loc=params[-2], scale=params[-1]) for prob in exceedance_probs]
+            row_data = {'Distribution': dist_name}
+            for i, interval in enumerate(recurrence_intervals):
+                row_data[f'Recurrence {interval}'] = quantiles[i]
+            results_df = results_df.append(row_data, ignore_index=True)
+        
+        results_df.set_index('Distribution', inplace=True)
+        
+        # Show results
+        # Round values to 0 decimal places
+        results_df = results_df.round(0)
+        st.dataframe(results_df)
+        
+        # Function to calculate AIC and BIC criteria
+        def calculate_aic_bic(data, dist):
+            # estimate distribution parameters
+            params = dist.fit(data)
+        
+            # calculate maximum likelihood estimate
+            mle = np.sum(dist.logpdf(data, *params))
+        
+            # calculate number of parameters
+            k = len(params)
+        
+            # calculate AIC and BIC
+            aic = 2*k - 2*mle
+            bic = np.log(len(data))*k - 2*mle
+        
+            return aic, bic
+        
+        # Load the data
+        data = summary['cumulative_dd']
+        
+        # calculate AIC and BIC for each distribution
+        distributions = [norm, lognorm, gumbel_r, genextreme]
+        names = ['Normal', 'Lognormal', 'Gumbel', 'GEV']
+        
+        aic_bic = pd.DataFrame(index=names, columns=['AIC', 'BIC'])
+        
+        for dist, name in zip(distributions, names):
+            aic, bic = calculate_aic_bic(data, dist)
+            aic_bic.loc[name, 'AIC'] = aic
+            aic_bic.loc[name, 'BIC'] = bic
+        
+        # Order by the BIC criterion as it is more critical of the number of parameters in the distribution.
+        aic_bic = aic_bic.sort_values(by='BIC')
+        
+        st.dataframe(aic_bic)
+        
+        
+        # 'data' identified as the CDDF value
+        data = summary['cumulative_dd'] 
+        
+        # Empty DataFrame to store AIC and BIC parameters
+        params_df = pd.DataFrame(columns=['Distribution', 'Parameters'])
+        
+        for dist_name in distributions_name:
+            dist = getattr(stats, dist_name)
+            params = dist.fit(data)
+            
+            params_df = params_df.append({'Distribution': dist_name, 'Parameters': params}, ignore_index=True)
+        
+        st.dataframe(params_df)
+        
+        fig3, axs = plt.subplots(2, 2, figsize=(12, 12))
+        
+        axs = axs.ravel()
+        
+        for ax, dist, name in zip(axs, distributions, names):
+            params = dist.fit(data)
+            _ = stats.probplot(data, dist=dist, sparams=params, plot=ax)
+            ax.set_title(name)
+        
+        plt.tight_layout()
+        st.pyplot(fig3)
+        # Dropdown for Stefan's coefficient
+        stefans_coefficient = st.selectbox('Stefan\'s Coefficient', [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0])
+        
+        # Dropdown for Effective Resistance of the Ice
+        effective_resistance = st.selectbox('Effective Resistance of the Ice', [350, 400, 700, 1100, 1500])
+        
+        # Dropdown for Slope of the Predicted Riprap
+        slope = st.selectbox('Slope of the Predicted Riprap', [0.33, 0.5, 0.66])
+        
+        # Check if results_df is available
+        if 'results_df' in locals():
+            # Calculate Theoretical Ice Thickness
+            icethickness_df = stefans_coefficient * (results_df ** 0.5)
+            st.write("Theoretical Ice Thickness")
+            st.dataframe(icethickness_df)
+        
+            # Calculate Shear Resistance Dimension
+            shear_resistance = 0.0612 * (effective_resistance * slope * (icethickness_df ** 0.5))
+            st.write("Shear Resistance Dimension")
+            st.dataframe(shear_resistance)
+
+            # Function to create download link for Excel file
+            def download_excel_link(excel_file, filename):
+                with io.BytesIO() as buffer:
+                    excel_file.save(buffer)
+                    buffer.seek(0)
+                    file = base64.b64encode(buffer.read()).decode('utf-8')
+                return f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{file}" download="{filename}">Download Excel file</a>'
+            
+            # Function to create the Excel workbook
+            def create_excel_workbook(df_dict, figure_dict):
+                wb = Workbook()
+                for sheet_name, df in df_dict.items():
+                    ws = wb.create_sheet(title=sheet_name)
+                    for r in pd.DataFrame(df).itertuples(index=False, name=None):
+                        ws.append(r)
+            
+                for fig_name, fig in figure_dict.items():
+                    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+                    fig.savefig(temp_file.name, format="png")
+                    img = Image(temp_file.name)
+            
+                    ws = wb.create_sheet(title=fig_name)
+                    ws.add_image(img, "A1")
+            
+                    temp_file.close()
+            
+                return wb
+            
+            # Assuming df, results_df, icethickness_df, shear_resistance are your DataFrames
+            # Assuming fig1, fig2 are your matplotlib figures
+            
+            # Create a dictionary of DataFrames
+            df_dict = {
+                "Input Data": df,
+                "Results Data": results_df,
+                "Ice Thickness": icethickness_df,
+                "Shear Resistance": shear_resistance
+            }
+            
+            # Create a dictionary of Figures
+            figure_dict = {
+                "Figure 1": fig1,
+                "Figure 2": fig2
+            }
+            
+            # Streamlit interface
+            st.title("Download Excel with Data and Plots")
+            if st.button('Generate and Download Excel'):
+                wb = create_excel_workbook(df_dict, figure_dict)
+                download_link = download_excel_link(wb, "data_and_plots.xlsx")
+                st.markdown(download_link, unsafe_allow_html=True)
+
 
 
 
