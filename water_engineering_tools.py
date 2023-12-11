@@ -859,10 +859,10 @@ if choice == "Ice Analysis - En":
         table_df['synthetic_year'] = [f"{year-1}-{year}" for year in table_df['synthetic_year']]
         
         # Rename columns to match provided descriptions
-        table_df.columns = ['Winter', 'Cumulative Freeze Degree Days']
+        table_df.columns = ['Winter', 'Cumulative Degree Days of Freezing']
         
         # Display the table
-        st.write("Table summarizing the cumulative freeze degree days for each winter at the station")
+        st.write("Table summarizing the Cumulative Degree Days of Freezing for each winter at the station")
         st.dataframe(table_df)
         
         # Histogram of cumulative freeze degree days
@@ -891,9 +891,9 @@ if choice == "Ice Analysis - En":
         line_std1 = ax.axhline(mean_cddf + std_cddf, color='orange', linestyle='--')
         line_std2 = ax.axhline(mean_cddf - std_cddf, color='orange', linestyle='--')
         
-        ax.set_ylabel('Cumulative Freeze Degree Days')
+        ax.set_ylabel('Cumulative Degree Days of Freezing')
         ax.set_xlabel('Winter')
-        ax.set_title('Histogram of Cumulative Freeze Degree Days by Winter')
+        ax.set_title('Histogram of the Cumulative Degree Days of Freezing by Winter')
         
         # Legend and layout
         legend_labels = ['Average', 'Standard Deviation +', 'Standard Deviation -']
@@ -906,7 +906,7 @@ if choice == "Ice Analysis - En":
         st.write("The number of daily missing data for each winter period is identified on the bars.")
         st.write(" ")
         st.write(" ")
-        st.write("A comparison of the average winter air temperature against the cumulative freeze degree days allows observing the average winter period")
+        st.write("A comparison of the average winter air temperature against the Cumulative Degree Days of Freezing allows observing the average winter period")
         
         # For the second graph
         fig2, ax1 = plt.subplots(figsize=(12, 8))  # Adjust the size as per your requirement
@@ -920,7 +920,7 @@ if choice == "Ice Analysis - En":
         ax2 = ax1.twinx()
         df.groupby(df['Winter'])['cumulative_dd'].mean().plot(ax=ax2, color='grey', linewidth=1)
         
-        ax2.set_ylabel('Average Cumulative Freeze Degree Days', color='grey')
+        ax2.set_ylabel('Average Cumulative Degree Days of Freezing', color='grey')
         
         # Format the x-axis to display only the first day of each month
         ax1.xaxis.set_major_locator(mdates.MonthLocator())
@@ -933,7 +933,7 @@ if choice == "Ice Analysis - En":
         ########################################################################################################
         # Assuming table_df is your DataFrame and 'Cumulative Freeze Degree Days' is the column of interest
         
-        data = table_df['Cumulative Freeze Degree Days']
+        data = table_df['Cumulative Degree Days of Freezing']
         
         pd.options.display.float_format = '{:.0f}'.format
         
