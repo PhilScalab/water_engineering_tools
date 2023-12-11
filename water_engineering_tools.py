@@ -903,7 +903,7 @@ if choice == "Ice Analysis - En":
         plt.tight_layout()
         st.pyplot(fig1)
         
-                st.write("The number of daily missing data for each winter period is identified on the bars.")
+        st.write("The number of daily missing data for each winter period is identified on the bars.")
         st.write(" ")
         st.write(" ")
         st.write("A comparison of the average winter air temperature against the cumulative freeze degree days allows observing the average winter period")
