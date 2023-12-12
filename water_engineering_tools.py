@@ -412,33 +412,38 @@ if choice == "Survey Planner":
         # Assuming a simple linear regression model: flow = sum(rain_data * weights)
         return np.sum(np.array(rain_data) * np.array(weights))
     
+    # Creating two columns for Québec and Lévis
+    col1, col2 = st.beta_columns(2)
+    
     # Sector: Québec
-    st.header("Québec")
-    rain_today_qc = st.slider("Rain Today in Québec (mm)", 0, 100, 25, key="rain_today_qc")
-    rain_tomorrow_qc = st.slider("Predicted Rain Tomorrow in Québec (mm)", 0, 100, 25, key="rain_tomorrow_qc")
-    rain_day_after_qc = st.slider("Predicted Rain 2 Days from Now in Québec (mm)", 0, 100, 25, key="rain_day_after_qc")
+    with col1:
+        st.header("Québec")
+        rain_today_qc = st.slider("Rain Today in Québec (mm)", 0, 100, 25, key="rain_today_qc")
+        rain_tomorrow_qc = st.slider("Predicted Rain Tomorrow in Québec (mm)", 0, 100, 25, key="rain_tomorrow_qc")
+        rain_day_after_qc = st.slider("Predicted Rain 2 Days from Now in Québec (mm)", 0, 100, 25, key="rain_day_after_qc")
     
-    # Regression weights for Québec
-    weights_qc = [0.29949278, 0.29876919, 0.22330731]
+        # Regression weights for Québec
+        weights_qc = [0.29949278, 0.29876919, 0.22330731]
     
-    # Perform calculations for Québec
-    rain_data_qc = [rain_today_qc, rain_tomorrow_qc, rain_day_after_qc]
-    predicted_flow_qc = calculate_predicted_flow(rain_data_qc, weights_qc)
-    st.write(f"Predicted Flow in Québec: {predicted_flow_qc} m³/s")
+        # Perform calculations for Québec
+        rain_data_qc = [rain_today_qc, rain_tomorrow_qc, rain_day_after_qc]
+        predicted_flow_qc = calculate_predicted_flow(rain_data_qc, weights_qc)
+        st.write(f"Predicted Flow in Québec: {predicted_flow_qc} m³/s")
     
     # Sector: Lévis
-    st.header("Lévis")
-    rain_today_levis = st.slider("Rain Today in Lévis (mm)", 0, 100, 25, key="rain_today_levis")
-    rain_tomorrow_levis = st.slider("Predicted Rain Tomorrow in Lévis (mm)", 0, 100, 25, key="rain_tomorrow_levis")
-    rain_day_after_levis = st.slider("Predicted Rain 2 Days from Now in Lévis (mm)", 0, 100, 25, key="rain_day_after_levis")
+    with col2:
+        st.header("Lévis")
+        rain_today_levis = st.slider("Rain Today in Lévis (mm)", 0, 100, 25, key="rain_today_levis")
+        rain_tomorrow_levis = st.slider("Predicted Rain Tomorrow in Lévis (mm)", 0, 100, 25, key="rain_tomorrow_levis")
+        rain_day_after_levis = st.slider("Predicted Rain 2 Days from Now in Lévis (mm)", 0, 100, 25, key="rain_day_after_levis")
     
-    # Allow the user to select different weights for Lévis regression
-    weights_levis = [0.40, 0.35, 0.15]
+        # Allow the user to select different weights for Lévis regression
+        weights_levis = [0.40, 0.35, 0.15]
     
-    # Perform calculations for Lévis
-    rain_data_levis = [rain_today_levis, rain_tomorrow_levis, rain_day_after_levis]
-    predicted_flow_levis = calculate_predicted_flow(rain_data_levis, weights_levis)
-    st.write(f"Predicted Flow in Lévis: {predicted_flow_levis} m³/s")
+        # Perform calculations for Lévis
+        rain_data_levis = [rain_today_levis, rain_tomorrow_levis, rain_day_after_levis]
+        predicted_flow_levis = calculate_predicted_flow(rain_data_levis, weights_levis)
+        st.write(f"Predicted Flow in Lévis: {predicted_flow_levis} m³/s")
     
     # Create a DataFrame with locations, their respective predicted flows, and additional data for visualization
     locations = pd.DataFrame({
@@ -448,9 +453,6 @@ if choice == "Survey Planner":
         "Predicted Flow (m³/s)": [predicted_flow_qc, predicted_flow_levis],
         "radius": [predicted_flow_qc * 100, predicted_flow_levis * 100]  # Radius for visualization proportional to flow
     })
-    #46.808872, -71.316338 quebec
-    #46.693664, -71.070347 levis
-    #46.744356, -71.197514 view map
     
     # PyDeck layer for flow visualization
     layer = pdk.Layer(
@@ -474,6 +476,77 @@ if choice == "Survey Planner":
     # Create and display the PyDeck map
     r = pdk.Deck(layers=[layer], initial_view_state=view_state)
     st.pydeck_chart(r)
+
+    # # Title of the app
+    # st.title("🌧️ Survey Planner")
+    
+    # # Function to perform regression calculation
+    # def calculate_predicted_flow(rain_data, weights):
+    #     # Assuming a simple linear regression model: flow = sum(rain_data * weights)
+    #     return np.sum(np.array(rain_data) * np.array(weights))
+    
+    # # Sector: Québec
+    # st.header("Québec")
+    # rain_today_qc = st.slider("Rain Today in Québec (mm)", 0, 100, 25, key="rain_today_qc")
+    # rain_tomorrow_qc = st.slider("Predicted Rain Tomorrow in Québec (mm)", 0, 100, 25, key="rain_tomorrow_qc")
+    # rain_day_after_qc = st.slider("Predicted Rain 2 Days from Now in Québec (mm)", 0, 100, 25, key="rain_day_after_qc")
+    
+    # # Regression weights for Québec
+    # weights_qc = [0.29949278, 0.29876919, 0.22330731]
+    
+    # # Perform calculations for Québec
+    # rain_data_qc = [rain_today_qc, rain_tomorrow_qc, rain_day_after_qc]
+    # predicted_flow_qc = calculate_predicted_flow(rain_data_qc, weights_qc)
+    # st.write(f"Predicted Flow in Québec: {predicted_flow_qc} m³/s")
+    
+    # # Sector: Lévis
+    # st.header("Lévis")
+    # rain_today_levis = st.slider("Rain Today in Lévis (mm)", 0, 100, 25, key="rain_today_levis")
+    # rain_tomorrow_levis = st.slider("Predicted Rain Tomorrow in Lévis (mm)", 0, 100, 25, key="rain_tomorrow_levis")
+    # rain_day_after_levis = st.slider("Predicted Rain 2 Days from Now in Lévis (mm)", 0, 100, 25, key="rain_day_after_levis")
+    
+    # # Allow the user to select different weights for Lévis regression
+    # weights_levis = [0.40, 0.35, 0.15]
+    
+    # # Perform calculations for Lévis
+    # rain_data_levis = [rain_today_levis, rain_tomorrow_levis, rain_day_after_levis]
+    # predicted_flow_levis = calculate_predicted_flow(rain_data_levis, weights_levis)
+    # st.write(f"Predicted Flow in Lévis: {predicted_flow_levis} m³/s")
+    
+    # # Create a DataFrame with locations, their respective predicted flows, and additional data for visualization
+    # locations = pd.DataFrame({
+    #     "Location": ["Quebec City", "Levis"],
+    #     "Latitude": [46.808872, 46.693664],
+    #     "Longitude": [-71.316338, -71.070347],
+    #     "Predicted Flow (m³/s)": [predicted_flow_qc, predicted_flow_levis],
+    #     "radius": [predicted_flow_qc * 100, predicted_flow_levis * 100]  # Radius for visualization proportional to flow
+    # })
+    # #46.808872, -71.316338 quebec
+    # #46.693664, -71.070347 levis
+    # #46.744356, -71.197514 view map
+    
+    # # PyDeck layer for flow visualization
+    # layer = pdk.Layer(
+    #     "ScatterplotLayer",
+    #     locations,
+    #     get_position='[Longitude, Latitude]',
+    #     get_radius='radius',
+    #     get_color=[200, 30, 0, 160],
+    #     pickable=True,
+    #     opacity=0.8,
+    # )
+    
+    # # Set the view state for the map
+    # view_state = pdk.ViewState(
+    #     latitude=46.744356,
+    #     longitude=-71.197514,
+    #     zoom=10,
+    #     pitch=0,
+    # )
+    
+    # # Create and display the PyDeck map
+    # r = pdk.Deck(layers=[layer], initial_view_state=view_state)
+    # st.pydeck_chart(r)
 
 
     
