@@ -1314,19 +1314,20 @@ if choice == "Water level CEHQ":
 #         """
 #     )
 if choice == "Home":
-    st.title("Water Engineering Tools")
+    st.title("💧 Water Engineering Tools 🌊")
     st.write(
         """
-        Welcome to the Water Engineering Tools web app created by a junior engineer.
-        This web app includes the following tools:
+        Welcome to the 💡 Water Engineering Tools web app created by a junior engineer.
+        Dive into a world of water engineering with the following tools:
 
-        1. Hydrograph Producer: This tool allows you to import a CSV file containing daily flow data time series and plots the hydrograph for each year. It also provides the maximum, minimum, and number of missing values.
+        1. 🌊 Hydrograph Producer: This tool allows you to import a CSV file containing daily flow data time series and plots the hydrograph for each year. It also provides the maximum, minimum, and number of missing values.
 
-        2. Ice Analysis (English Version): This tool is based on meteorological data to determine the theoretical ice thickness and riprap dimension. It provides insights into ice behavior under various environmental conditions and assists in decision-making for ice management strategies.
+        2. ❄️ Ice Analysis (English Version): Based on meteorological data, this tool determines the theoretical ice thickness and riprap dimension. It offers valuable insights into ice behavior under various environmental conditions.
 
-        3. Survey Planner: This tool utilizes predicted rain events in a predictive model to forecast the flow in specific rivers. It helps managers to plan surveys more effectively by providing timely information on expected river flow, facilitating better resource allocation for survey teams.
+        3. 🌧️ Survey Planner: Utilizing predicted rain events in a predictive model, this tool forecasts the flow in specific rivers. It's an essential tool for managers to plan surveys, ensuring effective resource allocation for survey teams.
         """
     )
+
 
 if choice == "Hydrograph Producer":
     st.header("Hydrograph Producer")
