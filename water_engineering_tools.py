@@ -404,49 +404,59 @@ choice = st.sidebar.selectbox("Menu", menu)
 
 #"EWS-GS : Early warning system - Gauge Prediction"
 if choice == "Survey Planner":
+    # Title of the app
     st.title("🌧️ Survey Planner")
-    rain_today = st.slider("Rain Today (mm)", 0, 100, 25)
-    rain_tomorrow = st.slider("Predicted Rain Tomorrow (mm)", 0, 100, 25)
-    rain_day_after = st.slider("Predicted Rain 2 Days from Now (mm)", 0, 100, 25)
-
-    # Placeholder for map and data visualization
-    st.write("Predicted Flow at Different Locations in St. Charles River:")
     
-    # Dummy data for river locations and predicted flow
-    locations = ["Location A", "Location B", "Location C", "Location D"]
-    predicted_flow = np.random.rand(4) * 100  # Random data for demonstration
+    # Function to perform regression calculation
+    def calculate_predicted_flow(rain_data, weights):
+        # Assuming a simple linear regression model: flow = sum(rain_data * weights)
+        return np.sum(np.array(rain_data) * np.array(weights))
     
-    # Create a DataFrame for visualization
-    df = pd.DataFrame({
-        "Location": locations,
-        "Predicted Flow (m³/s)": predicted_flow
-    })
+    # Sector: Québec
+    st.header("Québec")
+    rain_today_qc = st.slider("Rain Today in Québec (mm)", 0, 100, 25, key="rain_today_qc")
+    rain_tomorrow_qc = st.slider("Predicted Rain Tomorrow in Québec (mm)", 0, 100, 25, key="rain_tomorrow_qc")
+    rain_day_after_qc = st.slider("Predicted Rain 2 Days from Now in Québec (mm)", 0, 100, 25, key="rain_day_after_qc")
     
-    # Displaying the data in a table
-    st.dataframe(df)
+    # Regression weights for Québec
+    weights_qc = [0.29949278, 0.29876919, 0.22330731]
     
-    # Plotting the data
-    fig, ax = plt.subplots()
-    ax.bar(df["Location"], df["Predicted Flow (m³/s)"])
-    plt.ylabel("Predicted Flow (m³/s)")
-    plt.title("Predicted River Flow at Different Locations")
-    st.pyplot(fig)
-
-    # Create a DataFrame with locations and their respective predicted flows
+    # Perform calculations for Québec
+    rain_data_qc = [rain_today_qc, rain_tomorrow_qc, rain_day_after_qc]
+    predicted_flow_qc = calculate_predicted_flow(rain_data_qc, weights_qc)
+    st.write(f"Predicted Flow in Québec: {predicted_flow_qc} m³/s")
+    
+    # Sector: Lévis
+    st.header("Lévis")
+    rain_today_levis = st.slider("Rain Today in Lévis (mm)", 0, 100, 25, key="rain_today_levis")
+    rain_tomorrow_levis = st.slider("Predicted Rain Tomorrow in Lévis (mm)", 0, 100, 25, key="rain_tomorrow_levis")
+    rain_day_after_levis = st.slider("Predicted Rain 2 Days from Now in Lévis (mm)", 0, 100, 25, key="rain_day_after_levis")
+    
+    # Allow the user to select different weights for Lévis regression
+    weights_levis = st.multiselect("Select Regression Weights for Lévis", 
+                                   options=np.arange(0.0, 1.0, 0.01).tolist(),
+                                   default=[0.3, 0.3, 0.4])
+    
+    # Perform calculations for Lévis
+    rain_data_levis = [rain_today_levis, rain_tomorrow_levis, rain_day_after_levis]
+    predicted_flow_levis = calculate_predicted_flow(rain_data_levis, weights_levis)
+    st.write(f"Predicted Flow in Lévis: {predicted_flow_levis} m³/s")
+    
+    # Create a DataFrame with locations, their respective predicted flows, and additional data for visualization
     locations = pd.DataFrame({
         "Location": ["Quebec City", "Levis"],
         "Latitude": [46.8139, 46.7382],
         "Longitude": [-71.2082, -71.2465],
-        "Predicted Flow (m³/s)": [50, 75]
+        "Predicted Flow (m³/s)": [predicted_flow_qc, predicted_flow_levis],
+        "radius": [predicted_flow_qc * 10, predicted_flow_levis * 10]  # Radius for visualization proportional to flow
     })
-    # Precompute the radius size before defining the PyDeck layer
-    locations['radius'] = locations['Predicted Flow (m³/s)'] * 10
     
+    # PyDeck layer for flow visualization
     layer = pdk.Layer(
         "ScatterplotLayer",
         locations,
         get_position='[Longitude, Latitude]',
-        get_radius='radius',  # Use the precomputed 'radius' column
+        get_radius='radius',
         get_color=[200, 30, 0, 160],
         pickable=True,
         opacity=0.8,
@@ -454,17 +464,79 @@ if choice == "Survey Planner":
     
     # Set the view state for the map
     view_state = pdk.ViewState(
-        latitude=46.8139,  # Centered around the latitude of Quebec City
-        longitude=-71.2082,  # Centered around the longitude of Quebec City
-        zoom=8,  # Zoom level adjusted to focus on the area of interest
+        latitude=46.8139,
+        longitude=-71.2082,
+        zoom=8,
         pitch=0,
     )
     
-    # Create the PyDeck map
+    # Create and display the PyDeck map
     r = pdk.Deck(layers=[layer], initial_view_state=view_state)
-    
-    # Display the map in the Streamlit app
     st.pydeck_chart(r)
+
+
+    
+    # st.title("🌧️ Survey Planner")
+    # rain_today = st.slider("Rain Today (mm)", 0, 100, 25)
+    # rain_tomorrow = st.slider("Predicted Rain Tomorrow (mm)", 0, 100, 25)
+    # rain_day_after = st.slider("Predicted Rain 2 Days from Now (mm)", 0, 100, 25)
+
+    # # Placeholder for map and data visualization
+    # st.write("Predicted Flow at Different Locations in St. Charles River:")
+    
+    # # Dummy data for river locations and predicted flow
+    # locations = ["Location A", "Location B", "Location C", "Location D"]
+    # predicted_flow = np.random.rand(4) * 100  # Random data for demonstration
+    
+    # # Create a DataFrame for visualization
+    # df = pd.DataFrame({
+    #     "Location": locations,
+    #     "Predicted Flow (m³/s)": predicted_flow
+    # })
+    
+    # # Displaying the data in a table
+    # st.dataframe(df)
+    
+    # # Plotting the data
+    # fig, ax = plt.subplots()
+    # ax.bar(df["Location"], df["Predicted Flow (m³/s)"])
+    # plt.ylabel("Predicted Flow (m³/s)")
+    # plt.title("Predicted River Flow at Different Locations")
+    # st.pyplot(fig)
+
+    # # Create a DataFrame with locations and their respective predicted flows
+    # locations = pd.DataFrame({
+    #     "Location": ["Quebec City", "Levis"],
+    #     "Latitude": [46.8139, 46.7382],
+    #     "Longitude": [-71.2082, -71.2465],
+    #     "Predicted Flow (m³/s)": [50, 75]
+    # })
+    # # Precompute the radius size before defining the PyDeck layer
+    # locations['radius'] = locations['Predicted Flow (m³/s)'] * 10
+    
+    # layer = pdk.Layer(
+    #     "ScatterplotLayer",
+    #     locations,
+    #     get_position='[Longitude, Latitude]',
+    #     get_radius='radius',  # Use the precomputed 'radius' column
+    #     get_color=[200, 30, 0, 160],
+    #     pickable=True,
+    #     opacity=0.8,
+    # )
+    
+    # # Set the view state for the map
+    # view_state = pdk.ViewState(
+    #     latitude=46.8139,  # Centered around the latitude of Quebec City
+    #     longitude=-71.2082,  # Centered around the longitude of Quebec City
+    #     zoom=8,  # Zoom level adjusted to focus on the area of interest
+    #     pitch=0,
+    # )
+    
+    # # Create the PyDeck map
+    # r = pdk.Deck(layers=[layer], initial_view_state=view_state)
+    
+    # # Display the map in the Streamlit app
+    # st.pydeck_chart(r)
 
 
 #Ice analysis"
