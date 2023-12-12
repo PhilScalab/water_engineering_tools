@@ -1320,11 +1320,25 @@ if choice == "Home":
         Welcome to the 💡 Water Engineering Tools web app created by a junior engineer.
         Dive into a world of water engineering with the following tools:
 
-        1. 🌊 Hydrograph Producer: This tool allows you to import a CSV file containing daily flow data time series and plots the hydrograph for each year. It also provides the maximum, minimum, and number of missing values.
+        **Available Tools:**
 
-        2. ❄️ Ice Analysis (English Version): Based on meteorological data, this tool determines the theoretical ice thickness and riprap dimension. It offers valuable insights into ice behavior under various environmental conditions.
+        - 🌊 **Hydrograph Producer**: 
+        This tool allows you to import a CSV file containing daily flow data time series and plots the hydrograph for each year. It also provides the maximum, minimum, and number of missing values.
+          * Import CSV with daily flow data.
+          * Plot hydrographs for each year.
+          * View max, min, and missing values.
 
-        3. 🌧️ Survey Planner: Utilizing predicted rain events in a predictive model, this tool forecasts the flow in specific rivers. It's an essential tool for managers to plan surveys, ensuring effective resource allocation for survey teams.
+        - ❄️ **Ice Analysis** (English Version): 
+        Based on meteorological data, this tool determines the theoretical ice thickness and riprap dimension. It offers valuable insights into ice behavior under various environmental conditions.
+          * Analyze meteorological data.
+          * Determine ice thickness and riprap dimension.
+          * Understand ice behavior under different conditions.
+
+        - 🌧️ **Survey Planner**: 
+        Utilizing predicted rain events in a predictive model, this tool forecasts the flow in specific rivers. It's an essential tool for managers to plan surveys, ensuring effective resource allocation for survey teams.
+          * Predict river flow using rain event models.
+          * Plan surveys efficiently.
+          * Essential for resource allocation and team management.
         """
     )
 
