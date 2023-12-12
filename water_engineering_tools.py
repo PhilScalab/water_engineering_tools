@@ -398,13 +398,13 @@ def fit_and_calculate_criteria(data, distribution, name, is_log_transformed=Fals
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
 
 # Main menu
-menu = ["Home", "Hydrograph Producer","Ice Analysis - En","EWS-GS : Early warning system - Gauge Prediction","Analyse de la glace - Fr", "Peak Flow Comparison",
+menu = ["Home", "Hydrograph Producer","Ice Analysis - En","Survey Planner","Analyse de la glace - Fr", "Peak Flow Comparison",
         "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ","NDBC Historical Data Download","Frequency Analysis v2"]
 choice = st.sidebar.selectbox("Menu", menu)
 
 #"EWS-GS : Early warning system - Gauge Prediction"
-if choice == "EWS-GS : Early warning system - Gauge Prediction":
-    st.title("EWS-GS : Early warning system - Gauge Prediction")
+if choice == "Survey Planner":
+    st.title("🌧️ Survey Planner")
     rain_today = st.slider("Rain Today (mm)", 0, 100, 25)
     rain_tomorrow = st.slider("Predicted Rain Tomorrow (mm)", 0, 100, 25)
     rain_day_after = st.slider("Predicted Rain 2 Days from Now (mm)", 0, 100, 25)
@@ -810,7 +810,7 @@ if choice == "Analyse de la glace - Fr":
 
 # Ice analysis
 if choice == "Ice Analysis - En":
-    st.title("Ice Analysis of the Station")
+    st.title("❄️ Ice Analysis")
 
     # File upload
     uploaded_file = st.file_uploader("Choose a CSV file")
@@ -1344,7 +1344,7 @@ if choice == "Home":
 
 
 if choice == "Hydrograph Producer":
-    st.header("Hydrograph Producer")
+    st.header("🌊 Hydrograph Producer")
 
     uploaded_file = st.file_uploader(
         "Upload a CSV file with daily flow data (Date, Flow, Year):", type="csv")
