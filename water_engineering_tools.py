@@ -443,11 +443,13 @@ if choice == "Survey Planner":
     # Create a DataFrame with locations, their respective predicted flows, and additional data for visualization
     locations = pd.DataFrame({
         "Location": ["Quebec City", "Levis"],
-        "Latitude": [46.8139, 46.7382],
-        "Longitude": [-71.2082, -71.2465],
+        "Latitude": [46.808872, 46.693664],
+        "Longitude": [-71.316338, -71.070347],
         "Predicted Flow (m³/s)": [predicted_flow_qc, predicted_flow_levis],
-        "radius": [predicted_flow_qc * 10, predicted_flow_levis * 10]  # Radius for visualization proportional to flow
+        "radius": [predicted_flow_qc * 100, predicted_flow_levis * 100]  # Radius for visualization proportional to flow
     })
+    #46.808872, -71.316338 quebec
+    #46.693664, -71.070347 levis
     
     # PyDeck layer for flow visualization
     layer = pdk.Layer(
