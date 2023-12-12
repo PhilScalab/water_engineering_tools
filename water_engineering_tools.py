@@ -433,9 +433,7 @@ if choice == "Survey Planner":
     rain_day_after_levis = st.slider("Predicted Rain 2 Days from Now in Lévis (mm)", 0, 100, 25, key="rain_day_after_levis")
     
     # Allow the user to select different weights for Lévis regression
-    weights_levis = st.multiselect("Select Regression Weights for Lévis", 
-                                   options=np.arange(0.0, 1.0, 0.01).tolist(),
-                                   default=[0.3, 0.3, 0.4])
+    weights_levis = [0.40, 0.35, 0.15]
     
     # Perform calculations for Lévis
     rain_data_levis = [rain_today_levis, rain_tomorrow_levis, rain_day_after_levis]
