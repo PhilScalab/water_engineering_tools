@@ -450,6 +450,7 @@ if choice == "Survey Planner":
     })
     #46.808872, -71.316338 quebec
     #46.693664, -71.070347 levis
+    #46.744356, -71.197514 view map
     
     # PyDeck layer for flow visualization
     layer = pdk.Layer(
@@ -464,8 +465,8 @@ if choice == "Survey Planner":
     
     # Set the view state for the map
     view_state = pdk.ViewState(
-        latitude=46.8139,
-        longitude=-71.2082,
+        latitude=46.744356,
+        longitude=-71.197514,
         zoom=10,
         pitch=0,
     )
