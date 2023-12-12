@@ -466,7 +466,7 @@ if choice == "Survey Planner":
     view_state = pdk.ViewState(
         latitude=46.8139,
         longitude=-71.2082,
-        zoom=8,
+        zoom=10,
         pitch=0,
     )
     
