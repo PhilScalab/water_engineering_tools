@@ -1296,7 +1296,23 @@ if choice == "Water level CEHQ":
         # ax.set_title("Annual Min and Max")
         # st.pyplot(fig)
     
-# Home page
+# # Home page
+# if choice == "Home":
+#     st.title("Water Engineering Tools")
+#     st.write(
+#         """
+#         Welcome to the Water Engineering Tools web app created by a junior engineer.
+#         This web app includes the following tools:
+
+#         1. Hydrograph Producer: This tool allows you to import a CSV file containing daily flow data time series and plots the hydrograph for each year. It also provides the maximum, minimum, and number of missing values.
+
+#         2. Peak Flow Comparison: This tool compares two time series. The first time series contains the daily flow data of a river, while the second contains flow data for every 15 minutes of the same river. The tool compares the maximum value for each year of both time series and returns a table with all the ratios for each specific year. The last row displays the mean of these ratios.
+
+#         3. Camera Viewer: This tool allows you to input images and displays the image on the webpage.
+
+#         4. Frequency Analysis: This tool performs frequency analysis on the maximum flow data using various probability distributions and generates a Word document with the analysis results.
+#         """
+#     )
 if choice == "Home":
     st.title("Water Engineering Tools")
     st.write(
@@ -1306,14 +1322,11 @@ if choice == "Home":
 
         1. Hydrograph Producer: This tool allows you to import a CSV file containing daily flow data time series and plots the hydrograph for each year. It also provides the maximum, minimum, and number of missing values.
 
-        2. Peak Flow Comparison: This tool compares two time series. The first time series contains the daily flow data of a river, while the second contains flow data for every 15 minutes of the same river. The tool compares the maximum value for each year of both time series and returns a table with all the ratios for each specific year. The last row displays the mean of these ratios.
+        2. Ice Analysis (English Version): This tool is based on meteorological data to determine the theoretical ice thickness and riprap dimension. It provides insights into ice behavior under various environmental conditions and assists in decision-making for ice management strategies.
 
-        3. Camera Viewer: This tool allows you to input images and displays the image on the webpage.
-
-        4. Frequency Analysis: This tool performs frequency analysis on the maximum flow data using various probability distributions and generates a Word document with the analysis results.
+        3. Survey Planner: This tool utilizes predicted rain events in a predictive model to forecast the flow in specific rivers. It helps managers to plan surveys more effectively by providing timely information on expected river flow, facilitating better resource allocation for survey teams.
         """
     )
-
 
 if choice == "Hydrograph Producer":
     st.header("Hydrograph Producer")
