@@ -485,8 +485,8 @@ if choice == "CrissPy":
                 ax.yaxis.set_major_locator(plt.MaxNLocator(10))
         
                 st.pyplot(fig)
-            else:
-                st.write("Upload a file and process the data to view results.")
+        else:
+            st.write("Upload a file and process the data to view results.")
 
 
 #"EWS-GS : Early warning system - Gauge Prediction"
