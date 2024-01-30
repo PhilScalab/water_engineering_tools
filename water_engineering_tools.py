@@ -393,6 +393,22 @@ def fit_and_calculate_criteria(data, distribution, name, is_log_transformed=Fals
     }
 
     create_plots_normal()
+    
+def process_hdw_file(file_path, node):
+    # Column names for the second type of lines (assuming type 2 has the node data)
+    columns_type2 = ['i', 'jamfem', 'thifems', 'thifemf', 'qx', 'qy', 'eta', 
+                     'eta1', 'detax', 'detay', 'uwat', 'vwat', 'htw', 'tw', 
+                     'cv', 'han', 'hun']
+
+    # Read the file and extract the row for the specified node
+    with open(file_path, 'r') as file:
+        for line in file:
+            split_line = line.strip().split()
+            if len(split_line) == len(columns_type2) and split_line[0] == str(node):
+                return pd.DataFrame([split_line], columns=columns_type2)
+    
+    # Return an empty DataFrame if the node is not found
+    return pd.DataFrame(columns=columns_type2)
 
 # Page configuration
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
@@ -407,49 +423,51 @@ if choice == "CrissPy":
     # Title of the app
     st.title("🥨 CrissPy")
 
-    # File upload
+        # File upload
     uploaded_file = st.file_uploader("Upload a zip file containing HDW files", type="zip")
 
+    # Timestep selection
+    timestep = st.selectbox("Select the timestep", ["1 min", "5 min", "15 min", "30 min", "1h", "3h"])
+
     if uploaded_file is not None:
-        with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
-            # Extract files to a temporary directory
-            temp_dir = "temp_extract"
-            zip_ref.extractall(temp_dir)
-
-            # Process each .hdw file and combine the data
-            combined_data = pd.DataFrame()
-            for filename in os.listdir(temp_dir):
-                if filename.endswith('.hdw'):
-                    file_path = os.path.join(temp_dir, filename)
-                    df = process_hdw_file(file_path)
-                    combined_data = pd.concat([combined_data, df])
-
-            # Cleanup temporary files
-            for filename in os.listdir(temp_dir):
-                file_path = os.path.join(temp_dir, filename)
-                os.remove(file_path)
-            os.rmdir(temp_dir)
-
-        # Timestep selection
-        timestep = st.selectbox("Select the timestep", ["1 min", "5 min", "15 min", "30 min", "1h", "3h"])
-
         # Node selection
-        node = st.number_input("Select the node number", min_value=1, max_value=combined_data['i'].max())
+        node = st.number_input("Select the node number", min_value=1)
 
-        # Filter data for the selected node
-        node_data = combined_data[combined_data['i'] == node]
+        # Process button
+        process_button = st.button("Process Data")
 
-        # Column selection for plotting
-        column = st.selectbox("Select a column for plotting", combined_data.columns)
+        if process_button:
+            with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+                # Extract files to a temporary directory
+                temp_dir = "temp_extract"
+                zip_ref.extractall(temp_dir)
 
-        # Plotting
-        fig, ax = plt.subplots()
-        ax.plot(node_data[column])
-        ax.set_title(f"{column} over Time for Node {node}")
-        ax.set_xlabel("Time")
-        ax.set_ylabel(column)
-        st.pyplot(fig)
+                # Process each .hdw file and concatenate the data for the selected node
+                combined_data = pd.DataFrame()
+                for filename in os.listdir(temp_dir):
+                    if filename.endswith('.hdw'):
+                        file_path = os.path.join(temp_dir, filename)
+                        df = process_hdw_file(file_path, node)
+                        combined_data = pd.concat([combined_data, df])
 
+                # Cleanup temporary files
+                for filename in os.listdir(temp_dir):
+                    os.remove(os.path.join(temp_dir, filename))
+                os.rmdir(temp_dir)
+
+            if not combined_data.empty:
+                # Column selection for plotting
+                column = st.selectbox("Select a column for plotting", combined_data.columns)
+
+                # Plotting
+                fig, ax = plt.subplots()
+                ax.plot(combined_data[column])
+                ax.set_title(f"{column} over Time for Node {node}")
+                ax.set_xlabel("Time")
+                ax.set_ylabel(column)
+                st.pyplot(fig)
+            else:
+                st.write("No data found for the selected node.")
 
 #"EWS-GS : Early warning system - Gauge Prediction"
 if choice == "Survey Planner":
