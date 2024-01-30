@@ -483,6 +483,24 @@ if choice == "CrissPy":
         ax.yaxis.set_major_locator(plt.MaxNLocator(10))
 
         st.pyplot(fig)
+        # Generate a download button for the DataFrame
+        @st.cache
+        def convert_df_to_excel(df):
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False, sheet_name='Sheet1')
+                writer.save()
+            processed_data = output.getvalue()
+            return processed_data
+
+        if st.session_state['combined_data'].shape[0] > 0:
+            df_excel = convert_df_to_excel(st.session_state['combined_data'])
+            st.download_button(
+                label="Download Excel file",
+                data=df_excel,
+                file_name="node_data.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
     else:
         st.write("Upload a file and process the data to view results.")
 
