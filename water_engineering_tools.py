@@ -463,6 +463,10 @@ if choice == "CrissPy":
                 st.session_state['combined_data'] = combined_data
 
     if not st.session_state['combined_data'].empty:
+        # Convert time to numeric and sort data
+        st.session_state['combined_data']['time'] = pd.to_numeric(st.session_state['combined_data']['time'])
+        st.session_state['combined_data'].sort_values(by='time', inplace=True)
+
         # Column selection for plotting
         column = st.selectbox("Select a column for plotting", st.session_state['combined_data'].columns[1:])  # Exclude the time column
 
@@ -470,8 +474,16 @@ if choice == "CrissPy":
         fig, ax = plt.subplots()
         ax.plot(st.session_state['combined_data']['time'], st.session_state['combined_data'][column])
         ax.set_title(f"{column} over Time for Node {node}")
+
+        # Set X-axis label and limits
         ax.set_xlabel("Time (hours)")
+        ax.set_xlim([st.session_state['combined_data']['time'].min(), st.session_state['combined_data']['time'].max()])
+
+        # Set Y-axis label and ticks
         ax.set_ylabel(column)
+        ax.set_ylim([st.session_state['combined_data'][column].min(), st.session_state['combined_data'][column].max()])
+        ax.yaxis.set_major_locator(plt.MaxNLocator(10))
+
         st.pyplot(fig)
     else:
         st.write("Upload a file and process the data to view results.")
