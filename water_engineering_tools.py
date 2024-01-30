@@ -434,7 +434,7 @@ if choice == "CrissPy":
     uploaded_file = st.file_uploader("Upload a zip file containing HDW files", type="zip")
 
     # Node selection
-        node = st.number_input("Select the node number", min_value=1)
+    node = st.number_input("Select the node number", min_value=1)
 
     if uploaded_file is not None:
 
