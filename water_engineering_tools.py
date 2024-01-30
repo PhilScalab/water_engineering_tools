@@ -1590,6 +1590,12 @@ if choice == "Home":
           * Predict river flow using rain event models.
           * Plan surveys efficiently.
           * Essential for resource allocation and team management.
+
+        - 🥨 **CrissPy**: 
+        CrissPy stands out as a powerful tool designed to process and analyze hydraulic node data effectively from CRISSP modeling using Python. It caters to professionals in water engineering and environmental sciences, offering insightful time series analysis.
+          * Upload a zip file containing multiple .hdw files.
+          * Allows users to specify and focus on a particular node for detailed analysis.
+          * Enable users to focus more on analysis and less on data processing complexities.
         """
     )
 
