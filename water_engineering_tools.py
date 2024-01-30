@@ -471,20 +471,18 @@ if choice == "CrissPy":
         column = st.selectbox("Select a column for plotting", st.session_state['combined_data'].columns[1:])  # Exclude the time column
 
         # Plotting
-        plt.figure(figsize=(10, 6))
-        plt.plot(st.session_state['combined_data']['time'], st.session_state['combined_data'][column], marker='', color='blue', linewidth=2)
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(st.session_state['combined_data']['time'], st.session_state['combined_data'][column], marker='', color='blue', linewidth=2)
+        ax.set_title(f"{column} over Time for Node {node}", fontsize=16)
+        ax.set_xlabel("Time (hours)", fontsize=14)
+        ax.set_ylabel(column, fontsize=14)
+        ax.set_xticks(fontsize=12)
+        ax.set_yticks(fontsize=12)
+        ax.set_xlim([st.session_state['combined_data']['time'].min(), st.session_state['combined_data']['time'].max()])
+        ax.set_ylim([st.session_state['combined_data'][column].min(), st.session_state['combined_data'][column].max()])
+        ax.yaxis.set_major_locator(plt.MaxNLocator(10))
 
-        plt.title(f"{column} over Time for Node {node}", fontsize=16)
-        plt.xlabel("Time (hours)", fontsize=14)
-        plt.ylabel(column, fontsize=14)
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
-
-        plt.xlim([st.session_state['combined_data']['time'].min(), st.session_state['combined_data']['time'].max()])
-        plt.ylim([st.session_state['combined_data'][column].min(), st.session_state['combined_data'][column].max()])
-        plt.gca().yaxis.set_major_locator(plt.MaxNLocator(10))
-
-        st.pyplot(plt)
+        st.pyplot(fig)
     else:
         st.write("Upload a file and process the data to view results.")
 
