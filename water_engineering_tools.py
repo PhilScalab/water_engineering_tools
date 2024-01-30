@@ -481,20 +481,19 @@ if choice == "CrissPy":
         plot_button = st.button("Plot Data")
 
         if plot_button:
-        
-        # Plotting
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(st.session_state['combined_data']['time'], st.session_state['combined_data'][column], marker='', color='blue', linewidth=2)
-        ax.set_title(f"{column} over Time for Node {node}", fontsize=16)
-        ax.set_xlabel("Time (hours)", fontsize=14)
-        ax.set_ylabel(column, fontsize=14)
-        ax.tick_params(axis='x', labelsize=12)
-        ax.tick_params(axis='y', labelsize=12)
-        ax.set_xlim([st.session_state['combined_data']['time'].min(), st.session_state['combined_data']['time'].max()])
-        ax.set_ylim([st.session_state['combined_data'][column].min(), st.session_state['combined_data'][column].max()])
-        ax.yaxis.set_major_locator(plt.MaxNLocator(10))
-
-        st.pyplot(fig)
+            # Plotting
+            fig, ax = plt.subplots(figsize=(10, 6))
+            ax.plot(st.session_state['combined_data']['time'], st.session_state['combined_data'][column], marker='', color='blue', linewidth=2)
+            ax.set_title(f"{column} over Time for Node {node}", fontsize=16)
+            ax.set_xlabel("Time (hours)", fontsize=14)
+            ax.set_ylabel(column, fontsize=14)
+            ax.tick_params(axis='x', labelsize=12)
+            ax.tick_params(axis='y', labelsize=12)
+            ax.set_xlim([st.session_state['combined_data']['time'].min(), st.session_state['combined_data']['time'].max()])
+            ax.set_ylim([st.session_state['combined_data'][column].min(), st.session_state['combined_data'][column].max()])
+            ax.yaxis.set_major_locator(plt.MaxNLocator(10))
+    
+            st.pyplot(fig)
         # Generate a download button for the DataFrame
         # Download button for the DataFrame
         df_excel = to_excel(st.session_state['combined_data'])
