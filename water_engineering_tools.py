@@ -433,10 +433,9 @@ if choice == "CrissPy":
     # File upload
     uploaded_file = st.file_uploader("Upload a zip file containing HDW files", type="zip")
 
-    # Node selection
-    node = st.number_input("Select the node number", min_value=1)
-
     if uploaded_file is not None:
+        # Node selection
+        node = st.number_input("Select the node number", min_value=1)
 
         # Process button
         process_button = st.button("Process Data")
@@ -462,31 +461,30 @@ if choice == "CrissPy":
 
                 # Store the combined data in session state
                 st.session_state['combined_data'] = combined_data
-                
-                # Convert time to numeric and sort data
-                st.session_state['combined_data']['time'] = pd.to_numeric(st.session_state['combined_data']['time'])
-                st.session_state['combined_data'].sort_values(by='time', inplace=True)
-        
-                # Column selection for plotting
-                column = st.selectbox("Select a column for plotting", st.session_state['combined_data'].columns[1:])  # Exclude the time column
-        
-                # Plotting
-                fig, ax = plt.subplots()
-                ax.plot(st.session_state['combined_data']['time'], st.session_state['combined_data'][column])
-                ax.set_title(f"{column} over Time for Node {node}")
-        
-                # Set X-axis label and limits
-                ax.set_xlabel("Time (hours)")
-                ax.set_xlim([st.session_state['combined_data']['time'].min(), st.session_state['combined_data']['time'].max()])
-        
-                # Set Y-axis label and ticks
-                ax.set_ylabel(column)
-                ax.set_ylim([st.session_state['combined_data'][column].min(), st.session_state['combined_data'][column].max()])
-                ax.yaxis.set_major_locator(plt.MaxNLocator(10))
-        
-                st.pyplot(fig)
-        else:
-            st.write("Upload a file and process the data to view results.")
+
+    if not st.session_state['combined_data'].empty:
+        # Convert time to numeric and sort data
+        st.session_state['combined_data']['time'] = pd.to_numeric(st.session_state['combined_data']['time'])
+        st.session_state['combined_data'].sort_values(by='time', inplace=True)
+
+        # Column selection for plotting
+        column = st.selectbox("Select a column for plotting", st.session_state['combined_data'].columns[1:])  # Exclude the time column
+
+        # Plotting
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(st.session_state['combined_data']['time'], st.session_state['combined_data'][column], marker='', color='blue', linewidth=2)
+        ax.set_title(f"{column} over Time for Node {node}", fontsize=16)
+        ax.set_xlabel("Time (hours)", fontsize=14)
+        ax.set_ylabel(column, fontsize=14)
+        ax.set_xticks(fontsize=12)
+        ax.set_yticks(fontsize=12)
+        ax.set_xlim([st.session_state['combined_data']['time'].min(), st.session_state['combined_data']['time'].max()])
+        ax.set_ylim([st.session_state['combined_data'][column].min(), st.session_state['combined_data'][column].max()])
+        ax.yaxis.set_major_locator(plt.MaxNLocator(10))
+
+        st.pyplot(fig)
+    else:
+        st.write("Upload a file and process the data to view results.")
 
 
 #"EWS-GS : Early warning system - Gauge Prediction"
