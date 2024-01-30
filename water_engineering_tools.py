@@ -400,15 +400,19 @@ def process_hdw_file(file_path, node):
                      'eta1', 'detax', 'detay', 'uwat', 'vwat', 'htw', 'tw', 
                      'cv', 'han', 'hun']
 
-    # Read the file and extract the row for the specified node
+    # Read the file and extract the time and the row for the specified node
     with open(file_path, 'r') as file:
+        first_line = next(file).strip().split()
+        time_value = first_line[0]  # Extracting time from the first row, first column
+
         for line in file:
             split_line = line.strip().split()
             if len(split_line) == len(columns_type2) and split_line[0] == str(node):
-                return pd.DataFrame([split_line], columns=columns_type2)
+                row = [time_value] + split_line  # Prepending time to the row data
+                return pd.DataFrame([row], columns=['time'] + columns_type2)
     
     # Return an empty DataFrame if the node is not found
-    return pd.DataFrame(columns=columns_type2)
+    return pd.DataFrame(columns=['time'] + columns_type2)
 
 # Page configuration
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
@@ -428,9 +432,6 @@ if choice == "CrissPy":
 
     # File upload
     uploaded_file = st.file_uploader("Upload a zip file containing HDW files", type="zip")
-
-    # Timestep selection
-    timestep = st.selectbox("Select the timestep", ["1 min", "5 min", "15 min", "30 min", "1h", "3h"])
 
     if uploaded_file is not None:
         # Node selection
@@ -463,17 +464,18 @@ if choice == "CrissPy":
 
     if not st.session_state['combined_data'].empty:
         # Column selection for plotting
-        column = st.selectbox("Select a column for plotting", st.session_state['combined_data'].columns)
+        column = st.selectbox("Select a column for plotting", st.session_state['combined_data'].columns[1:])  # Exclude the time column
 
         # Plotting
         fig, ax = plt.subplots()
-        ax.plot(st.session_state['combined_data'][column])
+        ax.plot(st.session_state['combined_data']['time'], st.session_state['combined_data'][column])
         ax.set_title(f"{column} over Time for Node {node}")
-        ax.set_xlabel("Time")
+        ax.set_xlabel("Time (hours)")
         ax.set_ylabel(column)
         st.pyplot(fig)
     else:
         st.write("Upload a file and process the data to view results.")
+
 
 #"EWS-GS : Early warning system - Gauge Prediction"
 if choice == "Survey Planner":
