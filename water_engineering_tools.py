@@ -477,6 +477,11 @@ if choice == "CrissPy":
         # Column selection for plotting
         column = st.selectbox("Select a column for plotting", st.session_state['combined_data'].columns[1:])  # Exclude the time column
 
+        # Process button
+        plot_button = st.button("Plot Data")
+
+        if plot_button:
+        
         # Plotting
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(st.session_state['combined_data']['time'], st.session_state['combined_data'][column], marker='', color='blue', linewidth=2)
