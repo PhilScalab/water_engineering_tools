@@ -423,7 +423,10 @@ if choice == "CrissPy":
     # Title of the app
     st.title("🥨 CrissPy")
 
-        # File upload
+    if 'combined_data' not in st.session_state:
+        st.session_state['combined_data'] = pd.DataFrame()
+
+    # File upload
     uploaded_file = st.file_uploader("Upload a zip file containing HDW files", type="zip")
 
     # Timestep selection
@@ -455,19 +458,22 @@ if choice == "CrissPy":
                     os.remove(os.path.join(temp_dir, filename))
                 os.rmdir(temp_dir)
 
-            if not combined_data.empty:
-                # Column selection for plotting
-                column = st.selectbox("Select a column for plotting", combined_data.columns)
+                # Store the combined data in session state
+                st.session_state['combined_data'] = combined_data
 
-                # Plotting
-                fig, ax = plt.subplots()
-                ax.plot(combined_data[column])
-                ax.set_title(f"{column} over Time for Node {node}")
-                ax.set_xlabel("Time")
-                ax.set_ylabel(column)
-                st.pyplot(fig)
-            else:
-                st.write("No data found for the selected node.")
+    if not st.session_state['combined_data'].empty:
+        # Column selection for plotting
+        column = st.selectbox("Select a column for plotting", st.session_state['combined_data'].columns)
+
+        # Plotting
+        fig, ax = plt.subplots()
+        ax.plot(st.session_state['combined_data'][column])
+        ax.set_title(f"{column} over Time for Node {node}")
+        ax.set_xlabel("Time")
+        ax.set_ylabel(column)
+        st.pyplot(fig)
+    else:
+        st.write("Upload a file and process the data to view results.")
 
 #"EWS-GS : Early warning system - Gauge Prediction"
 if choice == "Survey Planner":
