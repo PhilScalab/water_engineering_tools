@@ -398,9 +398,58 @@ def fit_and_calculate_criteria(data, distribution, name, is_log_transformed=Fals
 st.set_page_config(page_title="Water Engineering Tools", layout="wide")
 
 # Main menu
-menu = ["Home", "Hydrograph Producer","Ice Analysis - En","Survey Planner","Analyse de la glace - Fr", "Peak Flow Comparison",
+menu = ["Home", "Hydrograph Producer","Ice Analysis - En","Survey Planner","CrissPy","Analyse de la glace - Fr", "Peak Flow Comparison",
         "Camera Viewer", "Frequency Analysis","EC Daily Data Analysis","Water level CEHQ","NDBC Historical Data Download","Frequency Analysis v2"]
 choice = st.sidebar.selectbox("Menu", menu)
+
+#CrissPy
+if choice == "CrissPy":
+    # Title of the app
+    st.title("🥨 CrissPy")
+
+    # File upload
+    uploaded_file = st.file_uploader("Upload a zip file containing HDW files", type="zip")
+
+    if uploaded_file is not None:
+        with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+            # Extract files to a temporary directory
+            temp_dir = "temp_extract"
+            zip_ref.extractall(temp_dir)
+
+            # Process each .hdw file and combine the data
+            combined_data = pd.DataFrame()
+            for filename in os.listdir(temp_dir):
+                if filename.endswith('.hdw'):
+                    file_path = os.path.join(temp_dir, filename)
+                    df = process_hdw_file(file_path)
+                    combined_data = pd.concat([combined_data, df])
+
+            # Cleanup temporary files
+            for filename in os.listdir(temp_dir):
+                file_path = os.path.join(temp_dir, filename)
+                os.remove(file_path)
+            os.rmdir(temp_dir)
+
+        # Timestep selection
+        timestep = st.selectbox("Select the timestep", ["1 min", "5 min", "15 min", "30 min", "1h", "3h"])
+
+        # Node selection
+        node = st.number_input("Select the node number", min_value=1, max_value=combined_data['i'].max())
+
+        # Filter data for the selected node
+        node_data = combined_data[combined_data['i'] == node]
+
+        # Column selection for plotting
+        column = st.selectbox("Select a column for plotting", combined_data.columns)
+
+        # Plotting
+        fig, ax = plt.subplots()
+        ax.plot(node_data[column])
+        ax.set_title(f"{column} over Time for Node {node}")
+        ax.set_xlabel("Time")
+        ax.set_ylabel(column)
+        st.pyplot(fig)
+
 
 #"EWS-GS : Early warning system - Gauge Prediction"
 if choice == "Survey Planner":
