@@ -1293,7 +1293,7 @@ if choice == "Ice Analysis - En":
             st.dataframe(icethickness_df)
         
             # Calculate Shear Resistance Dimension
-            shear_resistance = (0.0612 * ((effective_resistance * slope * icethickness_df) ** 0.5))/100
+            shear_resistance = (0.0612 * ((effective_resistance * slope * icethickness_df) ** 0.5))
             st.write("Shear Resistance Riprap Dimension (m)")
             st.dataframe(shear_resistance)
 
